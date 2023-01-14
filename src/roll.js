@@ -26,7 +26,7 @@ const Roll = () => {
         Tone.Transport.scheduleRepeat((time) => {
             for (let i = 0; i < N_PITCHES; i++) {
                 if (rollRef.current[i * N_TIMESTEPS + timeStepRef.current] == 1) {
-                    synthRef.current[i].triggerAttackRelease(Tone.Frequency(i + 31, "midi").toNote(), "16n", time);
+                    synthRef.current[i].triggerAttackRelease(Tone.Frequency(i + 31, "midi").toNote(), "16n", time + 0.01);
                 }
             }
             setTimeStep((step) => (step + 1) % N_TIMESTEPS);
@@ -55,7 +55,7 @@ const Roll = () => {
                                     }
                                 }}
 
-                                style={{ width: 26, height: 16, margin: 0, backgroundColor: roll[pitch * N_TIMESTEPS + time] == 0 ? "red" : "black", border: timeStep == time ? "1px solid black" : "none" }}></div>
+                                style={{ width: 26, height: 16, margin: 0, backgroundColor: roll[pitch * N_TIMESTEPS + time] == 0 ? "red" : "black", borderRadius: timeStep == time ? 1 : 10 }}></div>
                         )
                     }
                     )}
