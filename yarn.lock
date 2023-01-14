@@ -2262,6 +2262,18 @@
     "@typescript-eslint/types" "5.48.1"
     eslint-visitor-keys "^3.3.0"
 
+"@viselect/react@^3.2.4":
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/@viselect/react/-/react-3.2.4.tgz#356533e57ad7cf1b94e9c70f4cde36f9e6e7c21f"
+  integrity sha512-NiFjMWSxY0mIpFYA6DdP2O+asvo5WD+JsN9KfJF4zI/xk/OQEY2FBfqsOJIrVLIG34i/CA0kmoXSGVW/vsmHew==
+  dependencies:
+    "@viselect/vanilla" "^3.2.4"
+
+"@viselect/vanilla@^3.2.4":
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/@viselect/vanilla/-/vanilla-3.2.4.tgz#60896e063d393463387c3c9278b86dc3eddb2a72"
+  integrity sha512-OmyEwjxFDptc5kEaBIsueby/8s3rzLBYMZzSDChiXUHva/24eBA1b6iNsHnszIb/yLF4Zft762x536+uen/Ukw==
+
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.11.1.tgz#2bfd767eae1a6996f432ff7e8d7fc75679c0b6a7"

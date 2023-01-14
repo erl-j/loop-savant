@@ -1,17 +1,31 @@
-import Roll from './roll.js';
+import Roll from './Roll.js';
 import React from 'react';
-import ModelTest from './ModelTest.js';
+import * as ort from 'onnxruntime-web';
+import Model from './Model.js';
+
+const N_PITCHES = 36;
+const N_TIMESTEPS = 32;
 
 function App() {
+
+  const [model, setModel] = React.useState(null);
+
+  React.useEffect(() => {
+    (async () => {
+      let model = new Model();
+      await model.initialize();
+      setModel(model);
+    })();
+  }, []);
 
   const [isOn, setIsOn] = React.useState(false);
   return (
     <div className="App">
-      <ModelTest />
+      {/* <ModelTest /> */}
       <button onClick={() => setIsOn(!isOn)}>{isOn ? "Stop" : "Start"}</button>
-      {/* {isOn ? <Roll /> : null} */}
+      {model && (isOn ? <Roll /> : null)}
     </div>
   );
 }
 
-export default App;
+export default App
