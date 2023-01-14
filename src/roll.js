@@ -8,6 +8,9 @@ const N_TIMESTEPS = 32;
 const pitchRange = Array.from(Array(N_PITCHES).keys());
 const timeRange = Array.from(Array(N_TIMESTEPS).keys());
 
+const wrapTimeStep = (timeStep) => (timeStep + N_TIMESTEPS) % N_TIMESTEPS
+
+
 const Roll = () => {
     const [roll, setRoll, rollRef] = useRefState(new Array(N_PITCHES * N_TIMESTEPS).fill(0))
 
@@ -16,22 +19,31 @@ const Roll = () => {
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
     React.useEffect(() => {
-        Tone.start();
         let synths = [];
         pitchRange.forEach((pitch) => {
-            const synth = new Tone.Synth().toDestination();
+            const synth = new Tone.MonoSynth({ release: 0 }).toDestination();
             synths.push(synth);
             synthRef.current = synths;
         });
         Tone.Transport.scheduleRepeat((time) => {
+            let currentTimeStep = timeStepRef.current;
+            let previousTimeStep = wrapTimeStep(currentTimeStep - 1);
+            let timeOffset = 0.005;
             for (let i = 0; i < N_PITCHES; i++) {
-                if (rollRef.current[i * N_TIMESTEPS + timeStepRef.current] == 1) {
-                    synthRef.current[i].triggerAttackRelease(Tone.Frequency(i + 31, "midi").toNote(), "16n", time + 0.01);
+                let noteIsActive = rollRef.current[i * N_TIMESTEPS + currentTimeStep] == 1;
+                let noteWasActive = rollRef.current[i * N_TIMESTEPS + previousTimeStep] == 1;
+                if (noteIsActive && !noteWasActive) {
+                    synthRef.current[i].triggerAttack(Tone.Frequency(i + 31, "midi").toNote(), time + timeOffset);
+                }
+                if (!noteIsActive && noteWasActive) {
+                    synthRef.current[i].triggerRelease(time + timeOffset);
                 }
             }
             setTimeStep((step) => (step + 1) % N_TIMESTEPS);
         }
             , "16n");
+
+        Tone.start();
         Tone.Transport.start();
     }, [])
 
