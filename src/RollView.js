@@ -1,13 +1,14 @@
 import React from "react";
-import { N_PITCHES, N_TIMESTEPS } from "./constants";
 import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { useState } from "react";
 import "./index.css";
 
-const pitchRange = Array.from(Array(N_PITCHES).keys());
-const timeRange = Array.from(Array(N_TIMESTEPS).keys());
 
-const RollView = ({ roll, setRoll, timeStep, mask, setMask }) => {
+
+const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMask }) => {
+
+    const pitchRange = Array.from(Array(n_pitches).keys());
+    const timeRange = Array.from(Array(n_timesteps).keys());
 
     const [isMaskMode, setIsMaskMode] = useState(false);
 
@@ -55,7 +56,7 @@ const RollView = ({ roll, setRoll, timeStep, mask, setMask }) => {
                             onClick={() => {
                                 if (!isMaskMode) {
                                     const newRoll = [...roll];
-                                    newRoll[pitch * N_TIMESTEPS + time] = 1 - newRoll[pitch * N_TIMESTEPS + time];
+                                    newRoll[pitch * n_timesteps + time] = 1 - newRoll[pitch * n_timesteps + time];
                                     setRoll(newRoll);
                                 }
                             }
@@ -65,19 +66,19 @@ const RollView = ({ roll, setRoll, timeStep, mask, setMask }) => {
                                     // if pressed, toggle
                                     if (e.buttons == 1) {
                                         const newRoll = [...roll];
-                                        newRoll[pitch * N_TIMESTEPS + time] = 1 - newRoll[pitch * N_TIMESTEPS + time];
+                                        newRoll[pitch * n_timesteps + time] = 1 - newRoll[pitch * n_timesteps + time];
                                         setRoll(newRoll);
                                     }
                                 }
                             }}
                             className="selectable"
-                            data-key={pitch * N_TIMESTEPS + time}
+                            data-key={pitch * n_timesteps + time}
                             style={{
                                 width: 16,
                                 height: 6,
                                 margin: 1,
-                                opacity: mask[pitch * N_TIMESTEPS + time] == 0 ? 1 : 0.5,
-                                backgroundColor: roll[pitch * N_TIMESTEPS + time] == 0 ?
+                                opacity: mask[pitch * n_timesteps + time] == 0 ? 1 : 0.5,
+                                backgroundColor: roll[pitch * n_timesteps + time] == 0 ?
                                     (time % 4 == 0 ? "darkgray" : "gray") : "black",
                                 border: time == timeStep ? "4px solid red" : "4px solid black"
                             }}

@@ -16,7 +16,7 @@ class Model {
 
     async initialize() {
         ort.env.wasm.proxy = true;
-        this.session = await ort.InferenceSession.create('./tiny.onnx',
+        this.session = await ort.InferenceSession.create('./model.onnx',
             { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }
         );
         // this.test_run();
