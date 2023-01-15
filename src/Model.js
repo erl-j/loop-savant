@@ -2,7 +2,6 @@ import React from 'react';
 import * as ort from 'onnxruntime-web';
 import * as _ from 'lodash';
 
-
 // let MODEL_PATH =
 //   !process.env.NODE_ENV || process.env.NODE_ENV === "development"
 //     ? process.env.PUBLIC_URL + "/models/distilbert-base-uncased-masked-lm.onnx"
@@ -38,7 +37,6 @@ class Model {
         let y2, y_probs2 = await this.forward(x_in, mask_in);
 
         console.log(y_probs2);
-
     }
 
     async forward(x_in, mask_in) {
@@ -59,6 +57,7 @@ class Model {
 
     async generate(x_in, mask_in, n_steps) {
         let x_ch = x_in.map((x) => [x, 1 - x]).flat();
+        console.log(x_ch);
         let mask_ch = mask_in;
 
         let n_masked = mask_ch.reduce((a, b) => a + b, 0);
@@ -82,13 +81,20 @@ class Model {
             let y, y_probs = await this.forward(x_ch, mask_ch);
             n_masked = Math.floor(this.schedule((t + 1) / n_steps) * N_PITCHES * N_TIMESTEPS);
 
-            let sample = _.chunk(y_probs, 2).map((x) => {
+            let sample_2d = _.chunk(y_probs, 2).map((x) => {
                 let r = Math.random();
-                return [x[0] > r, x[1] > r];
+                let on = x[0] > r
+                return [on, 1 - on];
             }
-            ).flat();
+            )
 
-            console.asssert(sample.length == mask_ch.length);
+            let sample_2d_sums = sample_2d.map((x) => x[0] + x[1]);
+
+            for (let i = 0; i < sample_2d_sums.length; i++) {
+                console.assert(sample_2d_sums[i] == 1, `sample_2d_sums[${i}] = ${sample_2d_sums[i]}`);
+            }
+
+
 
             // get indices of masked notes
             let masked_indices = [];
@@ -109,7 +115,6 @@ class Model {
             // indices to unmask
             let unmask_indices = masked_indices.slice(0, n_unmask);
 
-            let sample_2d = _.chunk(sample, 2);
             let x_2d = _.chunk(x_ch, 2);
 
             for (let i = 0; i < unmask_indices.length; i++) {
