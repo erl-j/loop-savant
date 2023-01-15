@@ -6,6 +6,7 @@ import RollView from "./RollView";
 
 import { N_PITCHES, N_TIMESTEPS } from "./constants";
 
+const N_STEPS = 10;
 const pitchRange = Array.from(Array(N_PITCHES).keys());
 const timeRange = Array.from(Array(N_TIMESTEPS).keys());
 
@@ -23,7 +24,7 @@ const Roll = ({ model }) => {
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
     const runInfilling = () => {
-        model.generate(rollRef.current, mask).then(infilledRoll =>
+        model.generate(rollRef.current, mask, N_STEPS).then(infilledRoll =>
             setRoll(infilledRoll)
         )
     }
