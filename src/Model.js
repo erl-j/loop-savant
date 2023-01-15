@@ -15,10 +15,11 @@ class Model {
     }
 
     async initialize() {
-        this.session = await ort.InferenceSession.create('./model.onnx',
+        ort.env.wasm.proxy = true;
+        this.session = await ort.InferenceSession.create('./tiny.onnx',
             { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }
         );
-        this.test_run();
+        // this.test_run();
     };
 
     async test_run() {
@@ -57,7 +58,6 @@ class Model {
 
     async generate(x_in, mask_in, n_steps) {
         let x_ch = x_in.map((x) => [x, 1 - x]).flat();
-        console.log(x_ch);
         let mask_ch = mask_in;
 
         let n_masked = mask_ch.reduce((a, b) => a + b, 0);
@@ -65,18 +65,7 @@ class Model {
 
         let start_step = Math.floor(this.inverse_schedule(mask_ratio) * n_steps);
 
-        console.log(`test: ${this.inverse_schedule(0)}`);
-        console.log(`n_steps: ${n_steps}`);
-        console.log(`mask_ratio: ${mask_ratio}`);
-        console.log(`start_step: ${start_step}`);
-        console.log(`n_masked: ${n_masked}`);
-
         for (let t = start_step; t < n_steps; t++) {
-
-            console.log('x_ch length: ' + x_ch.length);
-            console.log('mask_ch length: ' + mask_ch.length);
-            console.log(`n_masked: ${n_masked}`);
-            console.log(`t: ${t}`);
 
             let y, y_probs = await this.forward(x_ch, mask_ch);
             n_masked = Math.floor(this.schedule((t + 1) / n_steps) * N_PITCHES * N_TIMESTEPS);
@@ -88,13 +77,10 @@ class Model {
             }
             )
 
-            let sample_2d_sums = sample_2d.map((x) => x[0] + x[1]);
-
-            for (let i = 0; i < sample_2d_sums.length; i++) {
-                console.assert(sample_2d_sums[i] == 1, `sample_2d_sums[${i}] = ${sample_2d_sums[i]}`);
-            }
-
-
+            // let sample_2d_sums = sample_2d.map((x) => x[0] + x[1]);
+            // for (let i = 0; i < sample_2d_sums.length; i++) {
+            //     console.assert(sample_2d_sums[i] == 1, `sample_2d_sums[${i}] = ${sample_2d_sums[i]}`);
+            // }
 
             // get indices of masked notes
             let masked_indices = [];

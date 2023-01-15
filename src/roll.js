@@ -38,29 +38,35 @@ const Roll = ({ model }) => {
                 },
                 envelope: {
                     attack: 0.0,
-                    release: 0.0
-                }
-                ,
-                filterEnvelope: {
-                    attack: 0.0,
-                    release: 0.0
+                    release: 0.01
                 }
             }).toDestination();
+            synth.volume.value = synth.volume.value / N_PITCHES
             synths.push(synth);
-            synthRef.current = synths;
         });
+        synthRef.current = synths;
+
         Tone.Transport.scheduleRepeat((time) => {
+            let stepDuration = Tone.TransportTime("16n").toSeconds();
             let currentTimeStep = timeStepRef.current;
             let previousTimeStep = wrapTimeStep(currentTimeStep - 1);
-            let timeOffset = 0.001;
+            let resolution = "8n";
+            // get resolution in seconds
+            let secondsPerBeat = 60 / Tone.Transport.bpm.value;
+
+            let timeOffset = 0.0;
+
             for (let i = 0; i < N_PITCHES; i++) {
                 let noteIsActive = rollRef.current[i * N_TIMESTEPS + currentTimeStep] == 1;
                 let noteWasActive = rollRef.current[i * N_TIMESTEPS + previousTimeStep] == 1;
                 if (noteIsActive && !noteWasActive) {
-                    synthRef.current[i].triggerAttack(Tone.Frequency(i + 31, "midi").toNote(), time + timeOffset);
+                    synthRef.current[i].triggerAttack(
+                        Tone.Frequency(i + 32, "midi").toNote(),
+                        time + timeOffset);
                 }
                 if (!noteIsActive && noteWasActive) {
-                    synthRef.current[i].triggerRelease(time + timeOffset);
+                    synthRef.current[i].triggerRelease(
+                        time + timeOffset);
                 }
             }
             setTimeStep((step) => (step + 1) % N_TIMESTEPS);
