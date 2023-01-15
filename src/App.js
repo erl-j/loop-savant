@@ -23,7 +23,7 @@ function App() {
     <div className="App">
       {/* <ModelTest /> */}
       <button onClick={() => setIsOn(!isOn)}>{isOn ? "Stop" : "Start"}</button>
-      {model && (isOn ? <Roll /> : null)}
+      {model && (isOn ? <Roll model={model} /> : null)}
     </div>
   );
 }

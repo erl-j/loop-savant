@@ -11,7 +11,8 @@ const timeRange = Array.from(Array(N_TIMESTEPS).keys());
 
 const wrapTimeStep = (timeStep) => (timeStep + N_TIMESTEPS) % N_TIMESTEPS
 
-const Roll = () => {
+const Roll = ({ model }) => {
+
 
     const [roll, setRoll, rollRef] = useRefState(new Array(N_PITCHES * N_TIMESTEPS).fill(0))
 
@@ -20,6 +21,12 @@ const Roll = () => {
     const synthRef = React.useRef(null);
 
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
+
+    const runInfilling = () => {
+        model.generate(rollRef.current, mask).then(infilledRoll =>
+            setRoll(infilledRoll)
+        )
+    }
 
     React.useEffect(() => {
         let synths = [];
@@ -64,7 +71,10 @@ const Roll = () => {
     }, [])
 
     return (
-        <RollView roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask}></RollView>
+        <div>
+            <button onClick={runInfilling}>hello</button>
+            <RollView roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask}></RollView>
+        </div>
     );
 }
 

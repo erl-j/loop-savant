@@ -53,16 +53,21 @@ const RollView = ({ roll, setRoll, timeStep, mask, setMask }) => {
                     return (
                         <div key={time}
                             onClick={() => {
-                                const newRoll = [...roll];
-                                newRoll[pitch * N_TIMESTEPS + time] = 1 - newRoll[pitch * N_TIMESTEPS + time];
-                                setRoll(newRoll);
-                            }}
-                            onMouseEnter={(e) => {
-                                // if pressed, toggle
-                                if (e.buttons == 1) {
+                                if (!isMaskMode) {
                                     const newRoll = [...roll];
                                     newRoll[pitch * N_TIMESTEPS + time] = 1 - newRoll[pitch * N_TIMESTEPS + time];
                                     setRoll(newRoll);
+                                }
+                            }
+                            }
+                            onMouseEnter={(e) => {
+                                if (!isMaskMode) {
+                                    // if pressed, toggle
+                                    if (e.buttons == 1) {
+                                        const newRoll = [...roll];
+                                        newRoll[pitch * N_TIMESTEPS + time] = 1 - newRoll[pitch * N_TIMESTEPS + time];
+                                        setRoll(newRoll);
+                                    }
                                 }
                             }}
                             className="selectable"
@@ -71,7 +76,7 @@ const RollView = ({ roll, setRoll, timeStep, mask, setMask }) => {
                                 width: 16,
                                 height: 6,
                                 margin: 1,
-                                opacity: mask[pitch * N_TIMESTEPS + time] == 0 ? 0.5 : 1,
+                                opacity: mask[pitch * N_TIMESTEPS + time] == 0 ? 1 : 0.5,
                                 backgroundColor: roll[pitch * N_TIMESTEPS + time] == 0 ?
                                     (time % 4 == 0 ? "darkgray" : "gray") : "black",
                                 border: time == timeStep ? "4px solid red" : "4px solid black"
@@ -86,7 +91,7 @@ const RollView = ({ roll, setRoll, timeStep, mask, setMask }) => {
 
     return (
         <div>
-            <button onClick={() => setIsMaskMode((prev) => !prev)} />
+            <button onClick={() => setIsMaskMode((prev) => !prev)}>{isMaskMode ? "masking" : "roll"}</button>
             {isMaskMode ? <SelectionArea
                 className="container"
                 onStart={onStart}
@@ -95,7 +100,6 @@ const RollView = ({ roll, setRoll, timeStep, mask, setMask }) => {
             >
                 {children}
             </SelectionArea> : <div>{children}</div>}
-
         </div>)
 }
 
