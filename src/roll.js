@@ -8,7 +8,7 @@ import {
     MODEL_PITCHES, MODEL_TIMESTEPS
 } from "./constants";
 
-const MIN_NOTE = 46
+const MIN_NOTE = 40;
 const POLYPHONY = 10
 
 const wrapTimeStep = (timeStep) => (timeStep + MODEL_TIMESTEPS) % MODEL_TIMESTEPS
@@ -54,13 +54,13 @@ const Roll = ({ model }) => {
     let timeRange = Array.from(Array(MODEL_TIMESTEPS).keys());
 
     const [roll, setRoll, rollRef] = useRefState(new Array(n_pitches * MODEL_TIMESTEPS).fill(0))
-    const [mask, setMask] = React.useState(new Array(n_pitches * MODEL_TIMESTEPS).fill(0))
+    const [mask, setMask] = React.useState([...new Array(n_pitches * MODEL_TIMESTEPS).fill(0)])
     const synthRef = React.useRef(null);
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
-    const [n_steps, setNSteps] = React.useState(10)
+    const [n_steps, setNSteps] = React.useState(20)
     const [temperature, setTemperature] = React.useState(1.0)
-    const [activityBias, setActivityBias] = React.useState(0.0)
+    const [activityBias, setActivityBias] = React.useState(0.5)
 
 
     const [editMode, setEditMode] = React.useState("draw");
@@ -78,7 +78,6 @@ const Roll = ({ model }) => {
     }
 
     const regenerate = () => {
-        console.log("regenerate")
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
         model.regenerate(fullRoll, fullMask, n_steps, temperature, activityBias, 0.08).then(infilledRoll => {
@@ -140,8 +139,8 @@ const Roll = ({ model }) => {
             },
             envelope: {
                 attack: 0.01,
-                release: 0.01,
-                sustain: 1.0,
+                release: 0.05,
+                sustain: 0.5,
             },
             portamento: 0.5
         })
@@ -190,10 +189,10 @@ const Roll = ({ model }) => {
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
                     <div>
                         {
-                            modes.map((mode) => <button onClick={() => setEditMode(mode)} style={{ backgroundColor: editMode == mode ? "lightblue" : "white" }}>{mode}</button>
+                            modes.map((mode) => <button key={mode} onClick={() => setEditMode(mode)} style={{ backgroundColor: editMode == mode ? "lightblue" : "white" }}>{mode}</button>
                             )}
                         <button disabled={n_masked === 0} onClick={() => runInfilling()}>regenerate</button>
-                        <button disabled={n_masked === 0} onClick={() => regenerate()}>regenerate</button>
+                        <button disabled={n_masked === 0} onClick={() => regenerate()}>vary</button>
                         {/* <button disabled={n_masked === 0} onClick={() => invertCallback()}>invert selection</button> */}
                     </div>
                     <div>

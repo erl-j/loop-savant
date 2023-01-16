@@ -12,17 +12,12 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
     const [selected, setSelected] = useState(() => new Set())
 
 
-    const invertSelection = () => {
-        setSelected((prev) => {
-            const next = new Set();
-            for (let i = 0; i < mask.length; i++) {
-                if (!prev.has(i)) {
-                    next.add(i);
-                }
-            }
-            return next;
-        }
-        );
+    const invertSelection = (currentMask) => {
+        let newMask = new Array(currentMask.length).fill(0);
+        newMask.forEach((e, i) => {
+            newMask[i] = 1 - currentMask[i]
+        })
+        return newMask;
     }
 
 
@@ -32,7 +27,8 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
     function downHandler({ key }) {
 
         if (key === 'i') {
-            invertSelection();
+            let invertedMask = invertSelection(mask);
+            setMask(invertedMask);
         }
 
     }
@@ -44,7 +40,7 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
             window.removeEventListener('keydown', downHandler);
             window.removeEventListener('keyup', upHandler);
         };
-    }, []);
+    }, [mask]);
 
     React.useEffect(() => {
         const newMask = new Array(mask.length).fill(0);
