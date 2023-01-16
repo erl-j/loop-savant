@@ -149,23 +149,31 @@ const Roll = ({ model }) => {
     }, [])
 
     return (
-        <div>
+        <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
             <div>
-                <input type="range" min="1" max="30" step="1" value={n_steps} onChange={(e) => setNSteps(e.target.valueAsNumber)}></input>
-                <span>n_steps: {n_steps}</span>
-            </div>
-            <div>
-                <input type="range" min="0.0" max="5.0" step="0.01" value={temperature} onChange={(e) => setTemperature(e.target.valueAsNumber)}></input>
-                <span>temperature: {temperature}</span>
-            </div>
-            <div>
-                <input type="range" min="-1.0" max="5.0" step="0.01" value={activityBias} onChange={(e) => setActivityBias(e.target.valueAsNumber)}></input>
-                <span>activityBias: {activityBias}</span>
-            </div>
-            <button onClick={runInfilling}>hello</button>
-            <button onClick={() => setIsMaskMode((prev) => !prev)}>{isMaskMode ? "masking" : "roll"}</button>
-            <RollView n_pitches={n_pitches} n_timesteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} isMaskMode={isMaskMode}></RollView>
-        </div>
+                <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
+                    <div>
+                        <button onClick={runInfilling}>hello</button>
+                        <button onClick={() => setIsMaskMode((prev) => !prev)}>{isMaskMode ? "masking" : "roll"}</button>
+                    </div>
+                    <div>
+                        <div>
+                            <input type="range" min="1" max="30" step="1" value={n_steps} onChange={(e) => setNSteps(e.target.valueAsNumber)}></input>
+                            <span>n_steps: {n_steps}</span>
+                        </div>
+                        <div>
+                            <input type="range" min="0.0" max="5.0" step="0.01" value={temperature} onChange={(e) => setTemperature(e.target.valueAsNumber)}></input>
+                            <span>temperature: {temperature}</span>
+                        </div>
+                        <div>
+                            <input type="range" min="-1.0" max="5.0" step="0.01" value={activityBias} onChange={(e) => setActivityBias(e.target.valueAsNumber)}></input>
+                            <span>activityBias: {activityBias}</span>
+                        </div>
+                    </div>
+                </div>
+                <RollView n_pitches={n_pitches} n_timesteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} isMaskMode={isMaskMode}></RollView>
+            </div >
+        </div >
     );
 }
 

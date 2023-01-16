@@ -110,7 +110,7 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
                                 opacity: mask[pitch * n_timesteps + time] == 0 ? 1 : 0.1,
                                 backgroundColor: roll[pitch * n_timesteps + time] == 0 ?
                                     (time % 4 == 0 ? "gray" : "lightgray") : "black",
-                                border: time == timeStep ? "1px solid red" : "1px solid black"
+                                border: time == timeStep ? "1px solid red" : "1px solid darkgray"
                             }}
                         ></div>
                     )

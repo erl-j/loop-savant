@@ -20,10 +20,9 @@ function App() {
 
   const [isOn, setIsOn] = React.useState(false);
   return (
-    <div className="App">
+    <div className="App" style={{ width: "100%" }}>
       {/* <ModelTest /> */}
-      <button onClick={() => setIsOn(!isOn)}>{isOn ? "Stop" : "Start"}</button>
-      {model && (isOn ? <Roll model={model} /> : null)}
+      {model && (isOn ? <Roll model={model} /> : <button onClick={() => setIsOn(!isOn)}>{isOn ? "Stop" : "Start"}</button>)}
     </div>
   );
 }
