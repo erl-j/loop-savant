@@ -48,7 +48,7 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
     }
 
     const children = <div style={{ display: "flex", flexDirection: "column" }} >
-        {pitchRange.map((pitch) =>
+        {pitchRange.reverse().map((pitch) =>
             <div key={pitch} style={{ display: "flex", flexDirection: "row" }} >
                 {timeRange.map((time) => {
                     return (

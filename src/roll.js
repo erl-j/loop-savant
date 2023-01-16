@@ -60,6 +60,7 @@ const Roll = ({ model }) => {
     const runInfilling = () => {
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
+        console.log(fullMask.slice(MODEL_TIMESTEPS, 2 * MODEL_TIMESTEPS))
         model.generate(fullRoll, fullMask, n_steps, temperature, activityBias).then(infilledRoll => {
             infilledRoll = fullToScale(infilledRoll, SCALE)
             setRoll(infilledRoll)
@@ -73,7 +74,7 @@ const Roll = ({ model }) => {
         synthRef.current = new Tone.PolySynth(Tone.Synth, POLYPHONY).toDestination();
         synthRef.current.set({
             oscillator: {
-                type: "sawtooth"
+                type: "sine"
             },
             envelope: {
                 attack: 0.01,
@@ -82,7 +83,7 @@ const Roll = ({ model }) => {
             },
             portamento: 0.5
         })
-        synthRef.current.volume.value = -24
+        synthRef.current.volume.value = -30;
 
         Tone.Transport.bpm.value = 160;
 
