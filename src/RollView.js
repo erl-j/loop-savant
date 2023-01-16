@@ -3,14 +3,46 @@ import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { useState } from "react";
 import "./index.css";
 
-const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMask }) => {
+const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMask, isMaskMode }) => {
 
     const pitchRange = Array.from(Array(n_pitches).keys());
     const timeRange = Array.from(Array(n_timesteps).keys());
 
-    const [isMaskMode, setIsMaskMode] = useState(false);
-
     const [selected, setSelected] = useState(() => new Set())
+
+    const invertSelection = () => {
+        setSelected((prev) => {
+            const next = new Set();
+            for (let i = 0; i < mask.length; i++) {
+                if (!prev.has(i)) {
+                    next.add(i);
+                }
+            }
+            return next;
+        }
+        );
+    }
+
+    function upHandler({ key }) {
+
+    }
+
+    function downHandler({ key }) {
+
+        if (key === 'i') {
+            invertSelection();
+        }
+
+    }
+
+    React.useEffect(() => {
+        window.addEventListener('keydown', downHandler);
+        window.addEventListener('keyup', upHandler);
+        return () => {
+            window.removeEventListener('keydown', downHandler);
+            window.removeEventListener('keyup', upHandler);
+        };
+    }, []);
 
     React.useEffect(() => {
         const newMask = new Array(mask.length).fill(0);
@@ -72,13 +104,13 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
                             className="selectable"
                             data-key={pitch * n_timesteps + time}
                             style={{
-                                width: 16,
-                                height: 6,
+                                width: 32,
+                                height: 18,
                                 margin: 1,
-                                opacity: mask[pitch * n_timesteps + time] == 0 ? 1 : 0.5,
+                                opacity: mask[pitch * n_timesteps + time] == 0 ? 1 : 0.1,
                                 backgroundColor: roll[pitch * n_timesteps + time] == 0 ?
-                                    (time % 4 == 0 ? "darkgray" : "gray") : "black",
-                                border: time == timeStep ? "4px solid red" : "4px solid black"
+                                    (time % 4 == 0 ? "gray" : "lightgray") : "black",
+                                border: time == timeStep ? "1px solid red" : "1px solid black"
                             }}
                         ></div>
                     )
@@ -88,18 +120,20 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
         )}
     </div>
 
+    // div has keyboard events for mask mode
     return (
         <div>
-            <button onClick={() => setIsMaskMode((prev) => !prev)}>{isMaskMode ? "masking" : "roll"}</button>
-            {isMaskMode ? <SelectionArea
-                className="container"
-                onStart={onStart}
-                onMove={onMove}
-                selectables=".selectable"
-            >
-                {children}
-            </SelectionArea> : <div>{children}</div>}
-        </div>)
+            {
+                isMaskMode ? <SelectionArea
+                    className="container"
+                    onStart={onStart}
+                    onMove={onMove}
+                    selectables=".selectable"
+                >
+                    {children}
+                </SelectionArea> : <div>{children}</div>
+            }
+        </div >)
 }
 
 export default RollView;

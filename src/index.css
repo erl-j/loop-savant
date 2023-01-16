@@ -13,6 +13,17 @@ code {
 }
 
 .selection-area {
-  background: #4f90f22d;
-  border: 1px solid #4f90f2;
+  background: #00ff6a2d;
+  border: 1px solid #ff5900;
 }
+
+
+
+.selectable {
+  background: #d21010;
+  color: #fff;
+}
+
+
+
+/* Path: className selectable */

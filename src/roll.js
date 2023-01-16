@@ -8,6 +8,8 @@ import {
     MODEL_PITCHES, MODEL_TIMESTEPS
 } from "./constants";
 
+const MIN_NOTE = 52
+
 const wrapTimeStep = (timeStep) => (timeStep + MODEL_TIMESTEPS) % MODEL_TIMESTEPS
 
 const fullToScale = (roll, scale) => {
@@ -58,15 +60,44 @@ const Roll = ({ model }) => {
     const [temperature, setTemperature] = React.useState(1.0)
     const [activityBias, setActivityBias] = React.useState(0.0)
 
+    const [isMaskMode, setIsMaskMode] = React.useState(false);
+
     const runInfilling = () => {
+        console.log("runInfilling")
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
+        console.log(fullMask)
         model.generate(fullRoll, fullMask, n_steps, temperature, activityBias).then(infilledRoll => {
             infilledRoll = fullToScale(infilledRoll, SCALE)
             setRoll(infilledRoll)
         }
         )
     }
+
+    function upHandler({ key }) {
+        if (key === 'Shift') {
+            setIsMaskMode(false);
+        }
+    }
+
+    function downHandler({ key }) {
+        if (key === 'Shift') {
+            setIsMaskMode(true);
+        }
+        if (key === 'k') {
+            (() => runInfilling())()
+        }
+    }
+
+    // TODO: handle this better
+    React.useEffect(() => {
+        window.addEventListener('keydown', downHandler);
+        window.addEventListener('keyup', upHandler);
+        return () => {
+            window.removeEventListener('keydown', downHandler);
+            window.removeEventListener('keyup', upHandler);
+        };
+    }, [mask, roll, temperature, activityBias, isMaskMode]);
 
     const POLYPHONY = 6
     React.useEffect(() => {
@@ -97,7 +128,7 @@ const Roll = ({ model }) => {
             for (let i = 0; i < n_pitches; i++) {
                 let noteIsActive = rollRef.current[i * MODEL_TIMESTEPS + currentTimeStep] == 1;
                 let noteWasActive = rollRef.current[i * MODEL_TIMESTEPS + previousTimeStep] == 1;
-                let pitch = 42 + SCALE[i % SCALE.length] + Math.floor(i / SCALE.length) * 12
+                let pitch = MIN_NOTE + SCALE[i % SCALE.length] + Math.floor(i / SCALE.length) * 12
                 if (noteIsActive && !noteWasActive) {
                     synthRef.current.triggerAttack(
                         Tone.Frequency(pitch, "midi").toNote(),
@@ -132,7 +163,8 @@ const Roll = ({ model }) => {
                 <span>activityBias: {activityBias}</span>
             </div>
             <button onClick={runInfilling}>hello</button>
-            <RollView n_pitches={n_pitches} n_timesteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask}></RollView>
+            <button onClick={() => setIsMaskMode((prev) => !prev)}>{isMaskMode ? "masking" : "roll"}</button>
+            <RollView n_pitches={n_pitches} n_timesteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} isMaskMode={isMaskMode}></RollView>
         </div>
     );
 }
