@@ -10,6 +10,14 @@ import * as _ from 'lodash';
 const N_PITCHES = 36;
 const N_TIMESTEPS = 32;
 
+
+const softmax = (x, temperature) => {
+    x = x.map((a) => a / temperature);
+    let e_x = x.map((a) => Math.exp(a));
+    let sum = e_x.reduce((a, b) => a + b);
+    return e_x.map((a) => a / sum);
+};
+
 class Model {
     constructor() {
     }
@@ -53,10 +61,12 @@ class Model {
         let results = await this.session.run(feeds);
         const end = new Date().getTime();
         console.log(`time: ${end - start} ms`);
-        return results.y.data, results.y_probs.data;
+        console.log(results);
+        return [results.y.data, results.y_probs.data];
     }
 
-    async generate(x_in, mask_in, n_steps) {
+    async generate(x_in, mask_in, n_steps, temperature, activityBias) {
+
         let x_ch = x_in.map((x) => [x, 1 - x]).flat();
         let mask_ch = mask_in;
 
@@ -67,7 +77,24 @@ class Model {
 
         for (let t = start_step; t < n_steps; t++) {
 
-            let y, y_probs = await this.forward(x_ch, mask_ch);
+            let y, y_probs;
+            [y, y_probs] = await this.forward(x_ch, mask_ch);
+
+            console.log(y[0] + activityBias);
+
+            // show datatype of acitivityBias
+            console.log(typeof activityBias);
+
+            y = _.chunk(y, 2).map(x => [x[0] + activityBias, x[1]]).flat();
+            console.log(y);
+            y_probs = _.chunk(y, 2).map(x => softmax(x, temperature)).flat();
+
+            // assert that y_probs approximately sums to 1
+            // let y_probs_sums = _.chunk(y_probs, 2).map((x) => x[0] + x[1]);
+            // for (let i = 0; i < y_probs_sums.length; i++) {
+            //     console.assert(Math.abs(y_probs_sums[i] - 1) < 1e-5, `y_probs_sums[${i}] = ${y_probs_sums[i]}`);
+            // }
+
             n_masked = Math.floor(this.schedule((t + 1) / n_steps) * N_PITCHES * N_TIMESTEPS);
 
             let sample_2d = _.chunk(y_probs, 2).map((x) => {
@@ -76,7 +103,6 @@ class Model {
                 return [on, 1 - on];
             }
             )
-
             // let sample_2d_sums = sample_2d.map((x) => x[0] + x[1]);
             // for (let i = 0; i < sample_2d_sums.length; i++) {
             //     console.assert(sample_2d_sums[i] == 1, `sample_2d_sums[${i}] = ${sample_2d_sums[i]}`);

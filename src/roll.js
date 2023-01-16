@@ -6,7 +6,6 @@ import RollView from "./RollView";
 import * as _ from "lodash";
 import { MODEL_PITCHES, MODEL_TIMESTEPS } from "./constants";
 
-const N_STEPS = 10;
 
 const wrapTimeStep = (timeStep) => (timeStep + MODEL_TIMESTEPS) % MODEL_TIMESTEPS
 
@@ -54,67 +53,83 @@ const Roll = ({ model }) => {
     const synthRef = React.useRef(null);
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
+    const [n_steps, setNSteps] = React.useState(10)
+    const [temperature, setTemperature] = React.useState(1.0)
+    const [activityBias, setActivityBias] = React.useState(0.0)
+
     const runInfilling = () => {
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
-        model.generate(fullRoll, fullMask, N_STEPS).then(infilledRoll => {
+        model.generate(fullRoll, fullMask, n_steps, temperature, activityBias).then(infilledRoll => {
             infilledRoll = fullToScale(infilledRoll, SCALE)
             setRoll(infilledRoll)
         }
         )
     }
 
+    const POLYPHONY = 6
     React.useEffect(() => {
-        let synths = [];
-        pitchRange.forEach((pitch) => {
-            const synth = new Tone.MonoSynth({
-                oscillator: {
-                    type: "square"
-                },
-                envelope: {
-                    attack: 0.0,
-                    release: 0.01
-                }
-            }).toDestination();
-            synth.volume.value = -12
-            synths.push(synth);
-        });
-        synthRef.current = synths;
+
+        synthRef.current = new Tone.PolySynth(Tone.Synth, POLYPHONY).toDestination();
+        synthRef.current.set({
+            oscillator: {
+                type: "sawtooth"
+            },
+            envelope: {
+                attack: 0.01,
+                release: 0.01,
+                sustain: 1.0,
+            },
+            portamento: 0.5
+        })
+        synthRef.current.volume.value = -24
+
+        Tone.Transport.bpm.value = 160;
 
         Tone.Transport.scheduleRepeat((time) => {
-            let stepDuration = Tone.TransportTime("16n").toSeconds();
+
             let currentTimeStep = timeStepRef.current;
             let previousTimeStep = wrapTimeStep(currentTimeStep - 1);
-            let resolution = "8n";
-            // get resolution in seconds
-            let secondsPerBeat = 60 / Tone.Transport.bpm.value;
 
-            let timeOffset = 0.0;
+            let timeOffset = 0.001;
 
             for (let i = 0; i < n_pitches; i++) {
                 let noteIsActive = rollRef.current[i * MODEL_TIMESTEPS + currentTimeStep] == 1;
                 let noteWasActive = rollRef.current[i * MODEL_TIMESTEPS + previousTimeStep] == 1;
-                let pitch = SCALE[i % SCALE.length] + Math.floor(i / SCALE.length) * 12
+                let pitch = 42 + SCALE[i % SCALE.length] + Math.floor(i / SCALE.length) * 12
                 if (noteIsActive && !noteWasActive) {
-                    synthRef.current[i].triggerAttack(
-                        Tone.Frequency(pitch + 32, "midi").toNote(),
+                    synthRef.current.triggerAttack(
+                        Tone.Frequency(pitch, "midi").toNote(),
                         time + timeOffset);
                 }
                 else if (!noteIsActive) {
-                    synthRef.current[i].triggerRelease(
+                    synthRef.current.triggerRelease(Tone.Frequency(pitch, "midi").toNote(),
                         time + timeOffset);
                 }
             }
-            setTimeStep((step) => (step + 1) % MODEL_TIMESTEPS);
+
+            setTimeStep((step) => (currentTimeStep + 1) % MODEL_TIMESTEPS);
         }
             , "8n");
 
-        Tone.start();
+        //Tone.start();
         Tone.Transport.start();
     }, [])
 
     return (
         <div>
+            <div>
+                <input type="range" min="1" max="30" step="1" value={n_steps} onChange={(e) => setNSteps(e.target.valueAsNumber)}></input>
+                <span>n_steps: {n_steps}</span>
+            </div>
+            <div>
+                <input type="range" min="0.0" max="5.0" step="0.01" value={temperature} onChange={(e) => setTemperature(e.target.valueAsNumber)}></input>
+                <span>temperature: {temperature}</span>
+            </div>
+            <div>
+                <input type="range" min="-1.0" max="5.0" step="0.01" value={activityBias} onChange={(e) => setActivityBias(e.target.valueAsNumber)}></input>
+                <span>activityBias: {activityBias}</span>
+            </div>
             <button onClick={runInfilling}>hello</button>
             <RollView n_pitches={n_pitches} n_timesteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask}></RollView>
         </div>
