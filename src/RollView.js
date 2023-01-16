@@ -3,8 +3,6 @@ import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { useState } from "react";
 import "./index.css";
 
-
-
 const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMask }) => {
 
     const pitchRange = Array.from(Array(n_pitches).keys());

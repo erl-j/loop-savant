@@ -4,8 +4,9 @@ import useRefState from "./useRefState";
 import Model from "./Model";
 import RollView from "./RollView";
 import * as _ from "lodash";
-import { MODEL_PITCHES, MODEL_TIMESTEPS } from "./constants";
-
+import {
+    MODEL_PITCHES, MODEL_TIMESTEPS
+} from "./constants";
 
 const wrapTimeStep = (timeStep) => (timeStep + MODEL_TIMESTEPS) % MODEL_TIMESTEPS
 
@@ -60,7 +61,6 @@ const Roll = ({ model }) => {
     const runInfilling = () => {
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
-        console.log(fullMask.slice(MODEL_TIMESTEPS, 2 * MODEL_TIMESTEPS))
         model.generate(fullRoll, fullMask, n_steps, temperature, activityBias).then(infilledRoll => {
             infilledRoll = fullToScale(infilledRoll, SCALE)
             setRoll(infilledRoll)
