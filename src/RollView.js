@@ -3,12 +3,13 @@ import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { useState } from "react";
 import "./index.css";
 
-const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMask, isMaskMode }) => {
+const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMask, editMode }) => {
 
     const pitchRange = Array.from(Array(n_pitches).keys());
     const timeRange = Array.from(Array(n_timesteps).keys());
 
     const [selected, setSelected] = useState(() => new Set())
+
 
     const invertSelection = () => {
         setSelected((prev) => {
@@ -23,8 +24,8 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
         );
     }
 
-    function upHandler({ key }) {
 
+    function upHandler({ key }) {
     }
 
     function downHandler({ key }) {
@@ -83,20 +84,20 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
                 {timeRange.map((time) => {
                     return (
                         <div key={time}
-                            onClick={() => {
-                                if (!isMaskMode) {
+                            onMouseDown={() => {
+                                if (editMode == "draw" || editMode == "erase") {
                                     const newRoll = [...roll];
-                                    newRoll[pitch * n_timesteps + time] = 1 - newRoll[pitch * n_timesteps + time];
+                                    newRoll[pitch * n_timesteps + time] = editMode == "draw" ? 1 : 0;
                                     setRoll(newRoll);
                                 }
                             }
                             }
                             onMouseEnter={(e) => {
-                                if (!isMaskMode) {
+                                if (editMode == "draw" || editMode == "erase") {
                                     // if pressed, toggle
                                     if (e.buttons == 1) {
                                         const newRoll = [...roll];
-                                        newRoll[pitch * n_timesteps + time] = 1 - newRoll[pitch * n_timesteps + time];
+                                        newRoll[pitch * n_timesteps + time] = editMode == "draw" ? 1 : 0;
                                         setRoll(newRoll);
                                     }
                                 }
@@ -124,7 +125,7 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
     return (
         <div>
             {
-                isMaskMode ? <SelectionArea
+                editMode == "select" ? <SelectionArea
                     className="container"
                     onStart={onStart}
                     onMove={onMove}

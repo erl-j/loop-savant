@@ -3,8 +3,6 @@ import React from 'react';
 import * as ort from 'onnxruntime-web';
 import Model from './Model.js';
 
-const N_PITCHES = 36;
-const N_TIMESTEPS = 32;
 
 function App() {
 

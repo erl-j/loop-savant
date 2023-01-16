@@ -8,7 +8,8 @@ import {
     MODEL_PITCHES, MODEL_TIMESTEPS
 } from "./constants";
 
-const MIN_NOTE = 52
+const MIN_NOTE = 46
+const POLYPHONY = 10
 
 const wrapTimeStep = (timeStep) => (timeStep + MODEL_TIMESTEPS) % MODEL_TIMESTEPS
 
@@ -43,6 +44,7 @@ const scaleToFull = (roll, scale) => {
 }
 
 const SCALE = [0, 2, 4, 5, 7, 9, 11]
+//const SCALE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 console.assert(MODEL_PITCHES % 12 == 0)
 let n_pitches = (MODEL_PITCHES / 12) * SCALE.length
 
@@ -60,7 +62,8 @@ const Roll = ({ model }) => {
     const [temperature, setTemperature] = React.useState(1.0)
     const [activityBias, setActivityBias] = React.useState(0.0)
 
-    const [isMaskMode, setIsMaskMode] = React.useState(false);
+
+    const [editMode, setEditMode] = React.useState("draw");
 
     const runInfilling = () => {
         console.log("runInfilling")
@@ -74,18 +77,33 @@ const Roll = ({ model }) => {
         )
     }
 
-    function upHandler({ key }) {
-        if (key === 'Shift') {
-            setIsMaskMode(false);
+    const resetSelection = () => {
+        setMask(new Array(n_pitches * MODEL_TIMESTEPS).fill(0))
+    }
+
+    React.useEffect(() => {
+        if (editMode !== "select") {
+            resetSelection()
         }
+    }, [editMode])
+
+    function upHandler({ key }) {
+
     }
 
     function downHandler({ key }) {
-        if (key === 'Shift') {
-            setIsMaskMode(true);
+        if (key === 'k' || key === 'K') {
+            runInfilling()
         }
-        if (key === 'k') {
-            (() => runInfilling())()
+        if (key === 's' || key === 'S') {
+            setEditMode("select")
+        }
+
+        if (key === 'd' || key === 'D') {
+            setEditMode("draw")
+        }
+        if (key === 'e' || key === 'E') {
+            setEditMode("erase")
         }
     }
 
@@ -97,9 +115,11 @@ const Roll = ({ model }) => {
             window.removeEventListener('keydown', downHandler);
             window.removeEventListener('keyup', upHandler);
         };
-    }, [mask, roll, temperature, activityBias, isMaskMode]);
+    }, [mask, roll, temperature, activityBias, editMode]);
 
-    const POLYPHONY = 6
+
+
+
     React.useEffect(() => {
 
         synthRef.current = new Tone.PolySynth(Tone.Synth, POLYPHONY).toDestination();
@@ -148,13 +168,20 @@ const Roll = ({ model }) => {
         Tone.Transport.start();
     }, [])
 
+    const modes = ["draw", "erase", "select"]
+
+    let n_masked = mask.reduce((a, b) => a + b, 0)
+
     return (
-        <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 32 }}>
             <div>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
                     <div>
-                        <button onClick={runInfilling}>hello</button>
-                        <button onClick={() => setIsMaskMode((prev) => !prev)}>{isMaskMode ? "masking" : "roll"}</button>
+                        {
+                            modes.map((mode) => <button onClick={() => setEditMode(mode)} style={{ backgroundColor: editMode == mode ? "lightblue" : "white" }}>{mode}</button>
+                            )}
+                        <button disabled={n_masked === 0} onClick={() => runInfilling()}>regenerate</button>
+                        {/* <button disabled={n_masked === 0} onClick={() => invertCallback()}>invert selection</button> */}
                     </div>
                     <div>
                         <div>
@@ -163,15 +190,15 @@ const Roll = ({ model }) => {
                         </div>
                         <div>
                             <input type="range" min="0.0" max="5.0" step="0.01" value={temperature} onChange={(e) => setTemperature(e.target.valueAsNumber)}></input>
-                            <span>temperature: {temperature}</span>
+                            <span>temperature: {temperature.toFixed(2)}</span>
                         </div>
                         <div>
                             <input type="range" min="-1.0" max="5.0" step="0.01" value={activityBias} onChange={(e) => setActivityBias(e.target.valueAsNumber)}></input>
-                            <span>activityBias: {activityBias}</span>
+                            <span>activityBias: {activityBias.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>
-                <RollView n_pitches={n_pitches} n_timesteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} isMaskMode={isMaskMode}></RollView>
+                <RollView n_pitches={n_pitches} n_timesteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode}></RollView>
             </div >
         </div >
     );
