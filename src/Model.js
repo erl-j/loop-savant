@@ -24,7 +24,7 @@ class Model {
 
     async initialize() {
         ort.env.wasm.proxy = true;
-        this.session = await ort.InferenceSession.create('./tiny.onnx',
+        this.session = await ort.InferenceSession.create('./model.onnx',
             { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }
         );
         // this.test_run();
@@ -63,6 +63,79 @@ class Model {
         console.log(`time: ${end - start} ms`);
         console.log(results);
         return [results.y.data, results.y_probs.data];
+    }
+
+
+
+    async regenerate(x_in, mask_in, n_steps, temperature, activityBias, mask_rate) {
+
+        let x_ch = x_in.map((x) => [x, 1 - x]).flat();
+        let mask_ch = mask_in;
+
+        let n_masked = mask_ch.reduce((a, b) => a + b, 0);
+
+
+        for (let t = 0; t < n_steps; t++) {
+
+            mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (Math.random() < mask_rate && mask_in[i] == 1) ? 1 : 0);
+
+            let y, y_probs;
+            [y, y_probs] = await this.forward(x_ch, mask_ch);
+
+            console.log(y[0] + activityBias);
+
+            // show datatype of acitivityBias
+            console.log(typeof activityBias);
+
+            y = _.chunk(y, 2).map(x => [x[0] + activityBias, x[1]]).flat();
+            console.log(y);
+            y_probs = _.chunk(y, 2).map(x => softmax(x, temperature)).flat();
+
+            // assert that y_probs approximately sums to 1
+            // let y_probs_sums = _.chunk(y_probs, 2).map((x) => x[0] + x[1]);
+            // for (let i = 0; i < y_probs_sums.length; i++) {
+            //     console.assert(Math.abs(y_probs_sums[i] - 1) < 1e-5, `y_probs_sums[${i}] = ${y_probs_sums[i]}`);
+            // }
+
+            n_masked = Math.floor(this.schedule((t + 1) / n_steps) * N_PITCHES * N_TIMESTEPS);
+
+            let sample_2d = _.chunk(y_probs, 2).map((x) => {
+                let r = Math.random();
+                let on = x[0] > r
+                return [on, 1 - on];
+            }
+            )
+            // let sample_2d_sums = sample_2d.map((x) => x[0] + x[1]);
+            // for (let i = 0; i < sample_2d_sums.length; i++) {
+            //     console.assert(sample_2d_sums[i] == 1, `sample_2d_sums[${i}] = ${sample_2d_sums[i]}`);
+            // }
+
+            // get indices of masked notes
+            let masked_indices = [];
+            for (let i = 0; i < mask_ch.length; i++) {
+                if (mask_ch[i] == 1) {
+                    masked_indices.push(i);
+                }
+            }
+            // shuffle indices
+            masked_indices = _.shuffle(masked_indices);
+
+
+            // indices to unmask
+            let unmask_indices = masked_indices
+
+            let x_2d = _.chunk(x_ch, 2);
+
+            for (let i = 0; i < unmask_indices.length; i++) {
+                x_2d[unmask_indices[i]] = sample_2d[unmask_indices[i]];
+                mask_ch[unmask_indices[i]] = 0;
+            }
+            x_ch = x_2d.flat();
+        }
+
+        let x_out = _.chunk(x_ch, 2).map((x) => x[0]).flat();
+
+        return x_out;
     }
 
     async generate(x_in, mask_in, n_steps, temperature, activityBias) {

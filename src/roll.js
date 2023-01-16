@@ -77,6 +77,17 @@ const Roll = ({ model }) => {
         )
     }
 
+    const regenerate = () => {
+        console.log("regenerate")
+        let fullMask = scaleToFull(mask, SCALE)
+        let fullRoll = scaleToFull(roll, SCALE)
+        model.regenerate(fullRoll, fullMask, n_steps, temperature, activityBias, 0.08).then(infilledRoll => {
+            infilledRoll = fullToScale(infilledRoll, SCALE)
+            setRoll(infilledRoll)
+        })
+    }
+
+
     const resetSelection = () => {
         setMask(new Array(n_pitches * MODEL_TIMESTEPS).fill(0))
     }
@@ -94,6 +105,9 @@ const Roll = ({ model }) => {
     function downHandler({ key }) {
         if (key === 'k' || key === 'K') {
             runInfilling()
+        }
+        if (key === 'r' || key === 'r') {
+            regenerate()
         }
         if (key === 's' || key === 'S') {
             setEditMode("select")
@@ -116,9 +130,6 @@ const Roll = ({ model }) => {
             window.removeEventListener('keyup', upHandler);
         };
     }, [mask, roll, temperature, activityBias, editMode]);
-
-
-
 
     React.useEffect(() => {
 
@@ -149,15 +160,16 @@ const Roll = ({ model }) => {
                 let noteIsActive = rollRef.current[i * MODEL_TIMESTEPS + currentTimeStep] == 1;
                 let noteWasActive = rollRef.current[i * MODEL_TIMESTEPS + previousTimeStep] == 1;
                 let pitch = MIN_NOTE + SCALE[i % SCALE.length] + Math.floor(i / SCALE.length) * 12
+                if (!noteIsActive || currentTimeStep == 0) {
+                    synthRef.current.triggerRelease(Tone.Frequency(pitch, "midi").toNote(),
+                        time + timeOffset);
+                }
                 if (noteIsActive && !noteWasActive) {
                     synthRef.current.triggerAttack(
                         Tone.Frequency(pitch, "midi").toNote(),
                         time + timeOffset);
                 }
-                else if (!noteIsActive) {
-                    synthRef.current.triggerRelease(Tone.Frequency(pitch, "midi").toNote(),
-                        time + timeOffset);
-                }
+
             }
 
             setTimeStep((step) => (currentTimeStep + 1) % MODEL_TIMESTEPS);
@@ -181,6 +193,7 @@ const Roll = ({ model }) => {
                             modes.map((mode) => <button onClick={() => setEditMode(mode)} style={{ backgroundColor: editMode == mode ? "lightblue" : "white" }}>{mode}</button>
                             )}
                         <button disabled={n_masked === 0} onClick={() => runInfilling()}>regenerate</button>
+                        <button disabled={n_masked === 0} onClick={() => regenerate()}>regenerate</button>
                         {/* <button disabled={n_masked === 0} onClick={() => invertCallback()}>invert selection</button> */}
                     </div>
                     <div>

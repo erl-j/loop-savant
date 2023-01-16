@@ -2,6 +2,7 @@ import React from "react";
 import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { useState } from "react";
 import "./index.css";
+import * as _ from "lodash";
 
 const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMask, editMode }) => {
 
@@ -78,11 +79,25 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
         });
     }
 
+    function mutableRotateRight(arr, n = 1) {
+        for (let i = 0; i < n; i++) {
+            arr.unshift(arr.pop())
+        }
+        return arr;
+    }
+
+    function mutableRotateLeft(arr, n = 1) {
+        for (let i = 0; i < n; i++) {
+            arr.unshift(arr.pop())
+        }
+        return arr;
+    }
+
     const children = <div style={{ display: "flex", flexDirection: "column" }} >
-        {pitchRange.reverse().map((pitch) =>
+        {[...pitchRange.reverse(), "set_start"].map((pitch) =>
             <div key={pitch} style={{ display: "flex", flexDirection: "row" }} >
                 {timeRange.map((time) => {
-                    return (
+                    return (pitch !== "set_start" ?
                         <div key={time}
                             onMouseDown={() => {
                                 if (editMode == "draw" || editMode == "erase") {
@@ -107,19 +122,33 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
                             style={{
                                 width: 32,
                                 height: 18,
-                                margin: 1,
+                                margin: 0,
                                 opacity: mask[pitch * n_timesteps + time] == 0 ? 1 : 0.1,
                                 backgroundColor: roll[pitch * n_timesteps + time] == 0 ?
-                                    (time % 4 == 0 ? "gray" : "lightgray") : "black",
+                                    (time % 4 == 0 ? "lightgray" : "white") : "black",
                                 border: time == timeStep ? "1px solid red" : "1px solid darkgray"
                             }}
                         ></div>
-                    )
-                }
-                )}
+                        :
+                        <div key={time} style={{
+                            width: 32,
+                            height: 18,
+                            margin: 0,
+                            border: "1px solid darkgray",
+                            backgroundColor: "green",
+                        }}
+                            onClick={() => {
+                                const newRoll = _.chunk(roll, n_timesteps).map(x => mutableRotateRight(x, n_timesteps - time)).flat();
+                                setRoll(newRoll);
+                                const newMask = _.chunk(mask, n_timesteps).map(x => mutableRotateRight(x, n_timesteps - time)).flat();
+                                setMask(newMask);
+                            }
+                            }
+                        ></div>)
+                })}
             </div>
         )}
-    </div>
+    </div >
 
     // div has keyboard events for mask mode
     return (
