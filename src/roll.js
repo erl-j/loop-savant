@@ -67,22 +67,30 @@ const Roll = ({ model }) => {
 
     const [pitchOffset, setPitchOffset] = React.useState(0)
 
+    const [modelIsBusy, setModelIsBusy] = React.useState(false)
+
     const runGeneration = () => {
+
+        setModelIsBusy(true)
+        console.log("running generation")
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
         model.generate(fullRoll, fullMask, nSteps, temperature, activityBias).then(infilledRoll => {
             infilledRoll = fullToScale(infilledRoll, SCALE)
             setRoll(infilledRoll)
+            setModelIsBusy(false)
         }
         )
     }
 
     const runVariation = (mode) => {
+        setModelIsBusy(true)
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
         model.regenerate(fullRoll, fullMask, 1, temperature, activityBias, variationStrength, mode).then(infilledRoll => {
             infilledRoll = fullToScale(infilledRoll, SCALE)
             setRoll(infilledRoll)
+            setModelIsBusy(false)
         })
     }
 
@@ -98,6 +106,7 @@ const Roll = ({ model }) => {
             newMask[i] = 1 - currentMask[i]
         })
         setMask(newMask)
+        setEditMode("select")
     }
 
     const resetSelection = () => {
@@ -105,7 +114,10 @@ const Roll = ({ model }) => {
     }
 
     React.useEffect(() => {
-        if (editMode !== "select") {
+        if (editMode == "draw") {
+            resetSelection()
+        }
+        if (editMode == "erase") {
             resetSelection()
         }
     }, [editMode])
@@ -147,6 +159,7 @@ const Roll = ({ model }) => {
                     pitchOffset={pitchOffset}
                     setPitchOffset={setPitchOffset}
                     selectAll={selectAll}
+                    modelIsBusy={modelIsBusy}
                 ></Toolbar>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
                     <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode}></RollView>

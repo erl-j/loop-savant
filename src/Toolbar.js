@@ -1,6 +1,7 @@
 import { invert, set } from 'lodash';
 import * as React from 'react';
 import { WebMidi } from "webmidi";
+import ToolbarButton from './ToolbarButton';
 
 const Toolbar = ({
     setEditMode,
@@ -24,63 +25,12 @@ const Toolbar = ({
     setTempo,
     pitchOffset,
     setPitchOffset,
-    selectAll
+    selectAll,
+    modelIsBusy,
 }) => {
 
 
-    const upHandler = (key) => {
-    }
 
-    const downHandler = (keyEvent) => {
-        let key = keyEvent.key
-        //edit modes
-        if (key === 's' || key === 'S') {
-            setEditMode("select")
-        }
-        if (key === 'd' || key === 'D') {
-            setEditMode("draw")
-        }
-        if (key === 'e' || key === 'E') {
-            setEditMode("erase")
-        }
-
-        if (key === 'i' || key === 'I') {
-            invertSelection()
-        }
-        // transforms
-        if (key === 'g' || key === 'G') {
-            runGeneration()
-        }
-        if (key === 'v' || key === 'V') {
-            runVariation()
-        }
-        if (key === 'a' || key === 'A') {
-            selectAll()
-        }
-        if (key == "Backspace") {
-            deleteSelection()
-        }
-
-        if (key === 'ArrowUp') {
-            runVariation("denser")
-        }
-        if (key === 'ArrowDown') {
-            runVariation("sparser")
-        }
-
-    }
-
-
-
-    // TODO: handle this better
-    React.useEffect(() => {
-        window.addEventListener('keydown', downHandler);
-        window.addEventListener('keyup', upHandler);
-        return () => {
-            window.removeEventListener('keydown', downHandler);
-            window.removeEventListener('keyup', upHandler);
-        };
-    }, [setEditMode, runVariation, deleteSelection, runGeneration]);
 
     const [midiOutputs, setMidiOutputs] = React.useState([])
 
@@ -102,16 +52,28 @@ const Toolbar = ({
     return (
         <div style={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
             <div style={{ display: "flex", flexDirection: "row" }}>
+                <ToolbarButton text="draw" iconCharacter="✏️" keyboardCharacter="d" onActivate={() => setEditMode("draw")} isActive={editMode == "draw"} />
+                <ToolbarButton text="erase" iconCharacter="🧽" keyboardCharacter="e" onActivate={() => setEditMode("erase")} isActive={editMode == "erase"} />
+                <ToolbarButton text="select" iconCharacter="🀆" keyboardCharacter="s" onActivate={() => setEditMode("select")} isActive={editMode == "select"} />
+                <ToolbarButton text="invert" iconCharacter="🔄" keyboardCharacter="i" onActivate={invertSelection} disabled={editMode == "select"} />
 
-                {modes.map((mode) => <button key={mode} onClick={() => setEditMode(mode)} style={{ backgroundColor: editMode == mode ? "lightblue" : "white" }}>{mode}</button>
+
+                <ToolbarButton text="generation" iconCharacter="🪄" keyboardCharacter="g" onActivate={runGeneration} disabled={!transformsAreAvailable} />
+                <ToolbarButton text="variation" iconCharacter="🧬" keyboardCharacter="v" onActivate={runVariation} disabled={!transformsAreAvailable} />
+                <ToolbarButton text="select all" iconCharacter="📝" keyboardCharacter="a" onActivate={selectAll} disabled={editMode == "select"} />
+                <ToolbarButton text="delete" iconCharacter="🗑️" keyboardCharacter="Backspace" onActivate={deleteSelection} disabled={editMode == "select"} />
+                <ToolbarButton text="denser" iconCharacter="📈" keyboardCharacter="ArrowUp" onActivate={() => runVariation("denser")} disabled={editMode == "select"} hide={true} />
+                <ToolbarButton text="sparser" iconCharacter="📉" keyboardCharacter="ArrowDown" onActivate={() => runVariation("sparser")} disabled={editMode == "select"} hide={true} />
+
+                {/* {modes.map((mode) => <button key={mode} onClick={() => setEditMode(mode)} style={{ backgroundColor: editMode == mode ? "lightblue" : "white" }}>{mode}</button>
                 )}
                 <button disabled={!transformsAreAvailable} onClick={runGeneration}>generation</button >
                 <button disabled={!transformsAreAvailable} onClick={runVariation}>variation</button>
-                <button onClick={selectAll}>select all</button>
+                <button onClick={selectAll}>select all</button> */}
                 {/* <button onClick={() => runVariation("sparser")}>sparser</button>
                 <button onClick={() => runVariation("denser")}>denser</button> */}
-                <button onClick={invertSelection}>invert selection</button>
-                <button onClick={deleteSelection}>delete selection</button>
+                {/* <button onClick={invertSelection}>invert selection</button>
+                <button onClick={deleteSelection}>delete selection</button> */}
                 {/* <button onClick={() => exportMIDI(_.chunk(roll, MODEL_TIMESTEPS))}>export midi</button> */}
             </div>
             <div>
