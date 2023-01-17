@@ -43,12 +43,12 @@ const SCALE = [0, 2, 4, 5, 7, 9, 11]
 //const SCALE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 console.assert(MODEL_PITCHES % 12 == 0)
-let n_pitches = (MODEL_PITCHES / 12) * SCALE.length
+let nPitches = (MODEL_PITCHES / 12) * SCALE.length
 
 const Roll = ({ model }) => {
 
-    const [roll, setRoll, rollRef] = useRefState(new Array(n_pitches * MODEL_TIMESTEPS).fill(0))
-    const [mask, setMask] = React.useState([...new Array(n_pitches * MODEL_TIMESTEPS).fill(0)])
+    const [roll, setRoll, rollRef] = useRefState(new Array(nPitches * MODEL_TIMESTEPS).fill(0))
+    const [mask, setMask] = React.useState([...new Array(nPitches * MODEL_TIMESTEPS).fill(0)])
 
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
@@ -94,7 +94,7 @@ const Roll = ({ model }) => {
 
 
     const resetSelection = () => {
-        setMask(new Array(n_pitches * MODEL_TIMESTEPS).fill(0))
+        setMask(new Array(nPitches * MODEL_TIMESTEPS).fill(0))
     }
 
     React.useEffect(() => {
@@ -137,8 +137,8 @@ const Roll = ({ model }) => {
                     setOutput={setOutput}
                 ></Toolbar>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
-                    <RollView n_pitches={n_pitches} n_timesteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode}></RollView>
-                    <Transport outputRef={outputRef} timeStepRef={timeStepRef} rollRef={rollRef} n_pitches={n_pitches} n_timesteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} ></Transport>
+                    <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode}></RollView>
+                    <Transport outputRef={outputRef} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} ></Transport>
                 </div >
             </div >
         </div >

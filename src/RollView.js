@@ -4,10 +4,10 @@ import { useState } from "react";
 import "./index.css";
 import * as _ from "lodash";
 
-const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMask, editMode }) => {
+const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask, editMode, setTimeStep }) => {
 
-    const pitchRange = Array.from(Array(n_pitches).keys());
-    const timeRange = Array.from(Array(n_timesteps).keys());
+    const pitchRange = Array.from(Array(nPitches).keys());
+    const timeRange = Array.from(Array(nTimeSteps).keys());
 
     const [selected, setSelected] = useState(() => new Set())
 
@@ -68,7 +68,7 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
                             onMouseDown={() => {
                                 if (editMode == "draw" || editMode == "erase") {
                                     const newRoll = [...roll];
-                                    newRoll[pitch * n_timesteps + time] = editMode == "draw" ? 1 : 0;
+                                    newRoll[pitch * nTimeSteps + time] = editMode == "draw" ? 1 : 0;
                                     setRoll(newRoll);
                                 }
                             }
@@ -78,19 +78,19 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
                                     // if pressed, toggle
                                     if (e.buttons == 1) {
                                         const newRoll = [...roll];
-                                        newRoll[pitch * n_timesteps + time] = editMode == "draw" ? 1 : 0;
+                                        newRoll[pitch * nTimeSteps + time] = editMode == "draw" ? 1 : 0;
                                         setRoll(newRoll);
                                     }
                                 }
                             }}
                             className="selectable"
-                            data-key={pitch * n_timesteps + time}
+                            data-key={pitch * nTimeSteps + time}
                             style={{
                                 width: 32,
                                 height: 18,
                                 margin: 0,
-                                opacity: mask[pitch * n_timesteps + time] == 0 ? 1 : 0.1,
-                                backgroundColor: roll[pitch * n_timesteps + time] == 0 ?
+                                opacity: mask[pitch * nTimeSteps + time] == 0 ? 1 : 0.1,
+                                backgroundColor: roll[pitch * nTimeSteps + time] == 0 ?
                                     (time % 4 == 0 ? "lightgray" : "white") : "black",
                                 border: time == timeStep ? "1px solid red" : "1px solid darkgray"
                             }}
@@ -104,10 +104,11 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
                             backgroundColor: "green",
                         }}
                             onClick={() => {
-                                const newRoll = _.chunk(roll, n_timesteps).map(x => mutableRotateRight(x, n_timesteps - time)).flat();
+                                const newRoll = _.chunk(roll, nTimeSteps).map(x => mutableRotateRight(x, nTimeSteps - time)).flat();
                                 setRoll(newRoll);
-                                const newMask = _.chunk(mask, n_timesteps).map(x => mutableRotateRight(x, n_timesteps - time)).flat();
+                                const newMask = _.chunk(mask, nTimeSteps).map(x => mutableRotateRight(x, nTimeSteps - time)).flat();
                                 setMask(newMask);
+                                setTimeStep(step => (step + nTimeSteps - time) % nTimeSteps);
                             }
                             }
                         ></div>)

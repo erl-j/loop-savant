@@ -4,13 +4,7 @@ import { WebMidi } from 'webmidi';
 
 const MIN_NOTE = 43;
 const POLYPHONY = 36;
-const Transport = ({ rollRef, timeStepRef, n_pitches, n_timesteps, scale, setTimeStep, outputRef }) => {
-
-
-    const midiTimeOffsetRef = React.useRef(0);
-
-    const lastTimeMsRef = React.useRef(0);
-
+const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, outputRef }) => {
 
     const synthRef = React.useRef(null);
 
@@ -29,7 +23,7 @@ const Transport = ({ rollRef, timeStepRef, n_pitches, n_timesteps, scale, setTim
         })
         synthRef.current.volume.value = -30;
         Tone.Transport.bpm.value = 160;
-        const wrapTimeStep = (timeStep) => (timeStep + n_timesteps) % n_timesteps
+        const wrapTimeStep = (timeStep) => (timeStep + nTimeSteps) % nTimeSteps
         Tone.Transport.scheduleRepeat(function (time) {
             let currentTimeStep = timeStepRef.current;
             let previousTimeStep = wrapTimeStep(currentTimeStep - 1);
@@ -47,12 +41,14 @@ const Transport = ({ rollRef, timeStepRef, n_pitches, n_timesteps, scale, setTim
 
 
             const offset = WebMidi.time - Tone.context.currentTime * 1000;
+
+            const midiTime = offset + time * 1000
             // const midiTime = time * 1000 + offset + 300.0
             // const midiTime = 300.0 + ((performance.now() / 1000) - Tone.now()) * 1000;
 
-            for (let i = 0; i < n_pitches; i++) {
-                let noteIsActive = rollRef.current[i * n_timesteps + currentTimeStep] == 1;
-                let noteWasActive = rollRef.current[i * n_timesteps + previousTimeStep] == 1;
+            for (let i = 0; i < nPitches; i++) {
+                let noteIsActive = rollRef.current[i * nTimeSteps + currentTimeStep] == 1;
+                let noteWasActive = rollRef.current[i * nTimeSteps + previousTimeStep] == 1;
                 let pitch = MIN_NOTE + scale[i % scale.length] + Math.floor(i / scale.length) * 12
                 let notestr = Tone.Frequency(pitch, "midi").toNote();
 
@@ -63,7 +59,7 @@ const Transport = ({ rollRef, timeStepRef, n_pitches, n_timesteps, scale, setTim
                         time);
                     if (outputRef.current != "built-in") {
                         let channel = WebMidi.getOutputByName(outputRef.current).channels[1]
-                        channel.stopNote(pitch, { time: offset + time * 1000 });
+                        channel.stopNote(pitch, { time: midiTime });
                     }
 
                 }
@@ -75,21 +71,19 @@ const Transport = ({ rollRef, timeStepRef, n_pitches, n_timesteps, scale, setTim
                     }
                     else if (outputRef.current != "built-in") {
                         let channel = WebMidi.getOutputByName(outputRef.current).channels[1]
-                        channel.playNote(pitch, { time: offset + time * 1000 })
+                        channel.playNote(pitch, { time: midiTime })
                     }
 
                 }
 
 
             }
-            setTimeStep((step) => (step + 1) % n_timesteps);
+            setTimeStep((step) => (step + 1) % nTimeSteps);
 
         }
             , "8n");
 
         Tone.start();
-
-        midiTimeOffsetRef.current = 500.0 + WebMidi.time - Tone.context.currentTime * 1000;
         Tone.Transport.start();
 
 
