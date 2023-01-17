@@ -9,11 +9,10 @@ import {
     MODEL_PITCHES, MODEL_TIMESTEPS
 } from "./constants";
 import exportMIDI from "./export_midi";
+import Transport from "./Transport";
 
-const MIN_NOTE = 40;
-const POLYPHONY = 10
 
-const wrapTimeStep = (timeStep) => (timeStep + MODEL_TIMESTEPS) % MODEL_TIMESTEPS
+
 
 const fullToScale = (roll, scale) => {
     let out_roll_2d = []
@@ -57,7 +56,7 @@ const Roll = ({ model }) => {
 
     const [roll, setRoll, rollRef] = useRefState(new Array(n_pitches * MODEL_TIMESTEPS).fill(0))
     const [mask, setMask] = React.useState([...new Array(n_pitches * MODEL_TIMESTEPS).fill(0)])
-    const synthRef = React.useRef(null);
+
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
     const [n_steps, setNSteps] = React.useState(20)
@@ -65,10 +64,6 @@ const Roll = ({ model }) => {
     const [activityBias, setActivityBias] = React.useState(0.85)
 
     const [editMode, setEditMode] = React.useState("draw");
-
-    const midiTimeOffsetRef = React.useRef(0)
-
-    // const [midiOutput, setMidiOutput] = React.useState(null)
 
     const runInfilling = () => {
         console.log("runInfilling")
@@ -151,80 +146,7 @@ const Roll = ({ model }) => {
         };
     }, [mask, roll, temperature, activityBias, editMode]);
 
-    React.useEffect(() => {
 
-        let midiOutput = null;
-
-
-        synthRef.current = new Tone.PolySynth(Tone.Synth, POLYPHONY).toDestination();
-        synthRef.current.set({
-            oscillator: {
-                type: "sine"
-            },
-            envelope: {
-                attack: 0.01,
-                release: 0.05,
-                sustain: 0.5,
-            },
-            portamento: 0.5
-        })
-        synthRef.current.volume.value = -30;
-
-        Tone.Transport.bpm.value = 160;
-
-        Tone.Transport.scheduleRepeat((time) => {
-
-            let currentTimeStep = timeStepRef.current;
-            let previousTimeStep = wrapTimeStep(currentTimeStep - 1);
-
-            let timeOffset = 0.3;
-
-            for (let i = 0; i < n_pitches; i++) {
-                let noteIsActive = rollRef.current[i * MODEL_TIMESTEPS + currentTimeStep] == 1;
-                let noteWasActive = rollRef.current[i * MODEL_TIMESTEPS + previousTimeStep] == 1;
-                let pitch = MIN_NOTE + SCALE[i % SCALE.length] + Math.floor(i / SCALE.length) * 12
-                let notestr = Tone.Frequency(pitch, "midi").toNote();
-                if (noteWasActive && !noteIsActive || currentTimeStep == 0) {
-                    synthRef.current.triggerRelease(notestr,
-                        time + timeOffset);
-                    if (midiOutput !== null) {
-                        // console.log(`sending note off ${pitch}`)
-                        midiOutput.channels[1].stopNote(pitch, (time + timeOffset) * 1000 + midiTimeOffsetRef.current)
-                    }
-
-                }
-                if (noteIsActive && !noteWasActive) {
-                    synthRef.current.triggerAttack(
-                        notestr,
-                        time + timeOffset);
-                    if (midiOutput !== null) {
-                        // console.log(`sending note on ${pitch}`)
-                        console.log(midiTimeOffsetRef.current)
-                        midiOutput.channels[1].playNote(pitch, (time + timeOffset) * 1000 + midiTimeOffsetRef.current)
-                    }
-                }
-
-            }
-
-            setTimeStep((step) => (currentTimeStep + 1) % MODEL_TIMESTEPS);
-        }
-            , "8n");
-
-        Tone.Transport.start();
-        Tone.start();
-
-        // if (midiTimeOffsetRef.current == 0) {
-        //     midiTimeOffsetRef.current =
-        //         300.0 + WebMidi.time - Tone.Transport.now() * 1000.0;
-        // }
-
-        // WebMidi
-        //     .enable()
-        //     .then(() => {
-        //         return WebMidi.outputs[0]
-        //     })
-        //     .then((output) => rest(output))
-    }, [])
 
     const modes = ["draw", "erase", "select"]
 
@@ -259,9 +181,11 @@ const Roll = ({ model }) => {
                     </div>
                 </div>
                 <RollView n_pitches={n_pitches} n_timesteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode}></RollView>
+                <Transport timeStepRef={timeStepRef} rollRef={rollRef} n_pitches={n_pitches} n_timesteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} ></Transport>
             </div >
         </div >
     );
+
 }
 
 export default Roll;
