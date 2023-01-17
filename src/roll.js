@@ -62,6 +62,8 @@ const Roll = ({ model }) => {
 
     const [output, setOutput, outputRef] = useRefState("built-in")
 
+    const [tempo, setTempo] = React.useState(120)
+
     const runGeneration = () => {
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
@@ -135,10 +137,12 @@ const Roll = ({ model }) => {
                     variationStrength={variationStrength}
                     output={output}
                     setOutput={setOutput}
+                    tempo={tempo}
+                    setTempo={setTempo}
                 ></Toolbar>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
                     <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode}></RollView>
-                    <Transport outputRef={outputRef} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} ></Transport>
+                    <Transport outputRef={outputRef} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} ></Transport>
                 </div >
             </div >
         </div >

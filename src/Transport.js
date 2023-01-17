@@ -4,9 +4,16 @@ import { WebMidi } from 'webmidi';
 
 const MIN_NOTE = 43;
 const POLYPHONY = 36;
-const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, outputRef }) => {
+const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, outputRef, tempo }) => {
 
     const synthRef = React.useRef(null);
+
+
+    React.useEffect(() => {
+        Tone.Transport.bpm.rampTo(tempo, 0.5)
+    }
+        , [tempo])
+
 
     React.useEffect(() => {
         synthRef.current = new Tone.PolySynth(Tone.Synth, POLYPHONY).toDestination();
@@ -22,7 +29,7 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
             portamento: 0.5
         })
         synthRef.current.volume.value = -30;
-        Tone.Transport.bpm.value = 160;
+        Tone.Transport.bpm.value = tempo;
         const wrapTimeStep = (timeStep) => (timeStep + nTimeSteps) % nTimeSteps
         Tone.Transport.scheduleRepeat(function (time) {
             let currentTimeStep = timeStepRef.current;
@@ -77,6 +84,7 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
                 }
 
 
+
             }
             setTimeStep((step) => (step + 1) % nTimeSteps);
 
@@ -85,6 +93,24 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
 
         Tone.start();
         Tone.Transport.start();
+
+        const cleanup = () => {
+            console.log("transport unmounting")
+            Tone.Transport.stop();
+            Tone.Transport.cancel();
+            if (outputRef.current != "built-in") {
+                let channel = WebMidi.getOutputByName(outputRef.current).channels[1]
+                console.log("sending all notes off")
+                channel.sendAllNotesOff();
+            }
+        }
+
+        window.addEventListener('beforeunload', cleanup);
+
+        return () => {
+            window.removeEventListener('beforeunload', cleanup);
+        }
+
 
 
     }, [])

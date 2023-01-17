@@ -19,7 +19,9 @@ const Toolbar = ({
     variationStrength,
     setVariationStrength,
     setOutput,
-    output
+    output,
+    tempo,
+    setTempo,
 }) => {
 
 
@@ -112,6 +114,10 @@ const Toolbar = ({
                 <div>
                     <input type="range" min="0.05" max="1.0" step="0.01" value={variationStrength} onChange={(e) => setVariationStrength(e.target.valueAsNumber)}></input>
                     <span>variationStrength: {variationStrength.toFixed(2)}</span>
+                </div>
+                <div>
+                    <input type="range" min="30" max="300" step="1" value={tempo} onChange={(e) => setTempo(e.target.valueAsNumber)}></input>
+                    <span>tempo: {tempo}</span>
                 </div>
                 {
                     midiOutputs.length > 0 &&
