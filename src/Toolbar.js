@@ -1,5 +1,6 @@
-import { invert } from 'lodash';
+import { invert, set } from 'lodash';
 import * as React from 'react';
+import { WebMidi } from "webmidi";
 
 const Toolbar = ({
     setEditMode,
@@ -16,7 +17,9 @@ const Toolbar = ({
     deleteSelection,
     invertSelection,
     variationStrength,
-    setVariationStrength
+    setVariationStrength,
+    setOutput,
+    output
 }) => {
 
 
@@ -52,6 +55,8 @@ const Toolbar = ({
 
     }
 
+
+
     // TODO: handle this better
     React.useEffect(() => {
         window.addEventListener('keydown', downHandler);
@@ -62,8 +67,22 @@ const Toolbar = ({
         };
     }, [setEditMode, runVariation, deleteSelection, runGeneration]);
 
-    const modes = ["draw", "erase", "select"]
+    const [midiOutputs, setMidiOutputs] = React.useState([])
 
+    React.useEffect(() => {
+
+        WebMidi.enable((err) => {
+            if (err) {
+                console.log("WebMidi could not be enabled.", err);
+            } else {
+                console.log("WebMidi enabled!");
+                setMidiOutputs(WebMidi.outputs)
+            }
+        });
+    }
+        , [])
+
+    const modes = ["draw", "erase", "select"]
 
     return (
         <div style={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
@@ -74,6 +93,7 @@ const Toolbar = ({
                 <button disabled={!transformsAreAvailable} onClick={runGeneration}>generation</button >
                 <button disabled={!transformsAreAvailable} onClick={runVariation}>variation</button>
                 <button onClick={invertSelection}>invert selection</button>
+                <button onClick={deleteSelection}>delete selection</button>
                 {/* <button onClick={() => exportMIDI(_.chunk(roll, MODEL_TIMESTEPS))}>export midi</button> */}
             </div>
             <div>
@@ -93,6 +113,12 @@ const Toolbar = ({
                     <input type="range" min="0.05" max="1.0" step="0.01" value={variationStrength} onChange={(e) => setVariationStrength(e.target.valueAsNumber)}></input>
                     <span>variationStrength: {variationStrength.toFixed(2)}</span>
                 </div>
+                {
+                    midiOutputs.length > 0 &&
+                    <div>
+                        <button onClick={() => setOutput("built-in")}>built-in</button>
+                        <button onClick={() => setOutput(midiOutputs[0].name)}>{midiOutputs[0].name}</button>
+                    </div>}
             </div>
         </div >
     )
