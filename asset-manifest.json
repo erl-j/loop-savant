@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/composer-web/static/css/main.2ac2dea1.css",
+    "main.js": "/composer-web/static/js/main.2aefdb3a.js",
+    "static/js/787.4b0b92c2.chunk.js": "/composer-web/static/js/787.4b0b92c2.chunk.js",
+    "index.html": "/composer-web/index.html",
+    "main.2ac2dea1.css.map": "/composer-web/static/css/main.2ac2dea1.css.map",
+    "main.2aefdb3a.js.map": "/composer-web/static/js/main.2aefdb3a.js.map",
+    "787.4b0b92c2.chunk.js.map": "/composer-web/static/js/787.4b0b92c2.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2ac2dea1.css",
+    "static/js/main.2aefdb3a.js"
+  ]
+}
