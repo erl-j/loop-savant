@@ -15,6 +15,8 @@ const Toolbar = ({
     setTemperature,
     deleteSelection,
     invertSelection,
+    variationStrength,
+    setVariationStrength
 }) => {
 
 
@@ -86,6 +88,10 @@ const Toolbar = ({
                 <div>
                     <input type="range" min="-1.0" max="5.0" step="0.01" value={activityBias} onChange={(e) => setActivityBias(e.target.valueAsNumber)}></input>
                     <span>activityBias: {activityBias.toFixed(2)}</span>
+                </div>
+                <div>
+                    <input type="range" min="0.05" max="1.0" step="0.01" value={variationStrength} onChange={(e) => setVariationStrength(e.target.valueAsNumber)}></input>
+                    <span>variationStrength: {variationStrength.toFixed(2)}</span>
                 </div>
             </div>
         </div >

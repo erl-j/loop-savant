@@ -83,13 +83,10 @@ class Model {
             let y, y_probs;
             [y, y_probs] = await this.forward(x_ch, mask_ch);
 
-            console.log(y[0] + activityBias);
 
             // show datatype of acitivityBias
-            console.log(typeof activityBias);
 
             y = _.chunk(y, 2).map(x => [x[0] + activityBias, x[1]]).flat();
-            console.log(y);
             y_probs = _.chunk(y, 2).map(x => softmax(x, temperature)).flat();
 
             // assert that y_probs approximately sums to 1
@@ -154,13 +151,10 @@ class Model {
             let y, y_probs;
             [y, y_probs] = await this.forward(x_ch, mask_ch);
 
-            console.log(y[0] + activityBias);
 
             // show datatype of acitivityBias
-            console.log(typeof activityBias);
 
             y = _.chunk(y, 2).map(x => [x[0] + activityBias, x[1]]).flat();
-            console.log(y);
             y_probs = _.chunk(y, 2).map(x => softmax(x, temperature)).flat();
 
             // assert that y_probs approximately sums to 1

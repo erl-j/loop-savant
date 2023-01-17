@@ -1,16 +1,12 @@
-import React from "react";
-import * as Tone from "tone";
-import useRefState from "./useRefState";
-import Model from "./Model";
-import RollView from "./RollView";
 import * as _ from "lodash";
-import { WebMidi } from "webmidi";
+import React from "react";
 import {
     MODEL_PITCHES, MODEL_TIMESTEPS
 } from "./constants";
-import exportMIDI from "./export_midi";
-import Transport from "./Transport";
+import RollView from "./RollView";
 import Toolbar from "./Toolbar";
+import Transport from "./Transport";
+import useRefState from "./useRefState";
 
 
 const fullToScale = (roll, scale) => {
@@ -45,13 +41,11 @@ const scaleToFull = (roll, scale) => {
 
 const SCALE = [0, 2, 4, 5, 7, 9, 11]
 //const SCALE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
 console.assert(MODEL_PITCHES % 12 == 0)
 let n_pitches = (MODEL_PITCHES / 12) * SCALE.length
 
 const Roll = ({ model }) => {
-
-    let pitchRange = Array.from(Array(n_pitches).keys());
-    let timeRange = Array.from(Array(MODEL_TIMESTEPS).keys());
 
     const [roll, setRoll, rollRef] = useRefState(new Array(n_pitches * MODEL_TIMESTEPS).fill(0))
     const [mask, setMask] = React.useState([...new Array(n_pitches * MODEL_TIMESTEPS).fill(0)])
@@ -64,9 +58,9 @@ const Roll = ({ model }) => {
 
     const [editMode, setEditMode] = React.useState("draw");
 
+    const [variationStrength, setVariationStrength] = React.useState(0.08)
+
     const runGeneration = () => {
-        console.log("runGeneration")
-        console.log(nSteps)
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
         model.generate(fullRoll, fullMask, nSteps, temperature, activityBias).then(infilledRoll => {
@@ -90,7 +84,7 @@ const Roll = ({ model }) => {
         console.log(nSteps)
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
-        model.regenerate(fullRoll, fullMask, 1, temperature, activityBias, 0.08).then(infilledRoll => {
+        model.regenerate(fullRoll, fullMask, 1, temperature, activityBias, variationStrength).then(infilledRoll => {
             infilledRoll = fullToScale(infilledRoll, SCALE)
             setRoll(infilledRoll)
         })
@@ -135,6 +129,8 @@ const Roll = ({ model }) => {
                     runVariation={runVariation}
                     deleteSelection={deleteSelection}
                     invertSelection={invertSelection}
+                    setVariationStrength={setVariationStrength}
+                    variationStrength={variationStrength}
                 ></Toolbar>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
 
