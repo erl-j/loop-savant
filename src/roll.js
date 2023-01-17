@@ -4,9 +4,11 @@ import useRefState from "./useRefState";
 import Model from "./Model";
 import RollView from "./RollView";
 import * as _ from "lodash";
+import { WebMidi } from "webmidi";
 import {
     MODEL_PITCHES, MODEL_TIMESTEPS
 } from "./constants";
+import exportMIDI from "./export_midi";
 
 const MIN_NOTE = 40;
 const POLYPHONY = 10
@@ -60,10 +62,13 @@ const Roll = ({ model }) => {
 
     const [n_steps, setNSteps] = React.useState(20)
     const [temperature, setTemperature] = React.useState(1.0)
-    const [activityBias, setActivityBias] = React.useState(0.5)
-
+    const [activityBias, setActivityBias] = React.useState(0.85)
 
     const [editMode, setEditMode] = React.useState("draw");
+
+    const midiTimeOffsetRef = React.useRef(0)
+
+    // const [midiOutput, setMidiOutput] = React.useState(null)
 
     const runInfilling = () => {
         console.log("runInfilling")
@@ -118,10 +123,26 @@ const Roll = ({ model }) => {
         if (key === 'e' || key === 'E') {
             setEditMode("erase")
         }
+        //delete
+        if (key == "Backspace") {
+            let newRoll = [...roll]
+            newRoll = newRoll.map((x, i) => {
+                if (mask[i]) {
+                    return 0
+                }
+                else {
+                    return x
+                }
+            })
+            setRoll(newRoll)
+        }
     }
 
     // TODO: handle this better
     React.useEffect(() => {
+
+
+
         window.addEventListener('keydown', downHandler);
         window.addEventListener('keyup', upHandler);
         return () => {
@@ -131,6 +152,9 @@ const Roll = ({ model }) => {
     }, [mask, roll, temperature, activityBias, editMode]);
 
     React.useEffect(() => {
+
+        let midiOutput = null;
+
 
         synthRef.current = new Tone.PolySynth(Tone.Synth, POLYPHONY).toDestination();
         synthRef.current.set({
@@ -153,20 +177,31 @@ const Roll = ({ model }) => {
             let currentTimeStep = timeStepRef.current;
             let previousTimeStep = wrapTimeStep(currentTimeStep - 1);
 
-            let timeOffset = 0.001;
+            let timeOffset = 0.01;
 
             for (let i = 0; i < n_pitches; i++) {
                 let noteIsActive = rollRef.current[i * MODEL_TIMESTEPS + currentTimeStep] == 1;
                 let noteWasActive = rollRef.current[i * MODEL_TIMESTEPS + previousTimeStep] == 1;
                 let pitch = MIN_NOTE + SCALE[i % SCALE.length] + Math.floor(i / SCALE.length) * 12
+                let notestr = Tone.Frequency(pitch, "midi").toNote();
                 if (!noteIsActive || currentTimeStep == 0) {
-                    synthRef.current.triggerRelease(Tone.Frequency(pitch, "midi").toNote(),
+                    synthRef.current.triggerRelease(notestr,
                         time + timeOffset);
+                    if (midiOutput !== null) {
+                        // console.log(`sending note off ${pitch}`)
+                        midiOutput.channels[1].stopNote(pitch, (time + timeOffset) * 1000 + midiTimeOffsetRef.current)
+                    }
+
                 }
                 if (noteIsActive && !noteWasActive) {
                     synthRef.current.triggerAttack(
-                        Tone.Frequency(pitch, "midi").toNote(),
+                        notestr,
                         time + timeOffset);
+                    if (midiOutput !== null) {
+                        // console.log(`sending note on ${pitch}`)
+                        console.log(midiTimeOffsetRef.current)
+                        midiOutput.channels[1].playNote(pitch, (time + timeOffset) * 1000 + midiTimeOffsetRef.current)
+                    }
                 }
 
             }
@@ -175,8 +210,21 @@ const Roll = ({ model }) => {
         }
             , "8n");
 
-        //Tone.start();
+        Tone.start();
         Tone.Transport.start();
+        if (midiTimeOffsetRef.current == 0) {
+            midiTimeOffsetRef.current =
+                300.0 + WebMidi.time - Tone.Transport.now() * 1000.0;
+        }
+
+
+
+        // WebMidi
+        //     .enable()
+        //     .then(() => {
+        //         return WebMidi.outputs[0]
+        //     })
+        //     .then((output) => rest(output))
     }, [])
 
     const modes = ["draw", "erase", "select"]
@@ -194,6 +242,7 @@ const Roll = ({ model }) => {
                         <button disabled={n_masked === 0} onClick={() => runInfilling()}>regenerate</button>
                         <button disabled={n_masked === 0} onClick={() => regenerate()}>vary</button>
                         {/* <button disabled={n_masked === 0} onClick={() => invertCallback()}>invert selection</button> */}
+                        <button onClick={() => exportMIDI(_.chunk(roll, MODEL_TIMESTEPS))}>export midi</button>
                     </div>
                     <div>
                         <div>

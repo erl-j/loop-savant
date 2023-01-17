@@ -1,6 +1,7 @@
 import React from 'react';
 import * as ort from 'onnxruntime-web';
 import * as _ from 'lodash';
+import WebMidi from "webmidi";
 
 // let MODEL_PATH =
 //   !process.env.NODE_ENV || process.env.NODE_ENV === "development"
