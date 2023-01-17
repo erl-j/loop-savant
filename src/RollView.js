@@ -12,36 +12,6 @@ const RollView = ({ n_pitches, n_timesteps, roll, setRoll, timeStep, mask, setMa
     const [selected, setSelected] = useState(() => new Set())
 
 
-    const invertSelection = (currentMask) => {
-        let newMask = new Array(currentMask.length).fill(0);
-        newMask.forEach((e, i) => {
-            newMask[i] = 1 - currentMask[i]
-        })
-        return newMask;
-    }
-
-
-    function upHandler({ key }) {
-    }
-
-    function downHandler({ key }) {
-
-        if (key === 'i') {
-            let invertedMask = invertSelection(mask);
-            setMask(invertedMask);
-        }
-
-    }
-
-    React.useEffect(() => {
-        window.addEventListener('keydown', downHandler);
-        window.addEventListener('keyup', upHandler);
-        return () => {
-            window.removeEventListener('keydown', downHandler);
-            window.removeEventListener('keyup', upHandler);
-        };
-    }, [mask]);
-
     React.useEffect(() => {
         const newMask = new Array(mask.length).fill(0);
         selected.forEach((id) => {
