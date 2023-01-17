@@ -67,18 +67,52 @@ class Model {
     }
 
 
-
-    async regenerate(x_in, mask_in, n_steps, temperature, activityBias, mask_rate) {
+    // 
+    async regenerate(x_in, mask_in, n_steps, temperature, activityBias, mask_rate, mode = "all") {
+        let n_active_start = x_in.reduce((a, b) => a + b, 0);
 
         let x_ch = x_in.map((x) => [x, 1 - x]).flat();
+
         let mask_ch = mask_in;
 
         let n_masked = mask_ch.reduce((a, b) => a + b, 0);
 
 
+
+
         for (let t = 0; t < n_steps; t++) {
 
-            mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (Math.random() < mask_rate && mask_in[i] == 1) ? 1 : 0);
+            let x_ch_2d = _.chunk(x_ch, 2)
+
+
+            if (mode == "all") {
+                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_in[i] == 1) ? 1 : 0);
+            }
+            if (mode == "sparser") {
+                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_in[i] == 1 && x_ch_2d[i][0] == 1) ? 1 : 0);
+            }
+            if (mode == "denser") {
+                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_in[i] == 1 && x_ch_2d[i][1] == 1) ? 1 : 0);
+            }
+
+            let in_masked_indices = []
+            for (let i = 0; i < mask_ch.length; i++) {
+                if (mask_ch[i] == 1) {
+                    in_masked_indices.push(i);
+                }
+            }
+
+            in_masked_indices = _.shuffle(in_masked_indices);
+
+            in_masked_indices = in_masked_indices.slice(0, Math.max(Math.floor(in_masked_indices.length * mask_rate), 1));
+
+            console.log(in_masked_indices);
+
+            mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0);
+            for (let i = 0; i < in_masked_indices.length; i++) {
+                mask_ch[in_masked_indices[i]] = 1;
+            }
+
 
             let y, y_probs;
             [y, y_probs] = await this.forward(x_ch, mask_ch);
@@ -115,23 +149,71 @@ class Model {
                     masked_indices.push(i);
                 }
             }
-            // shuffle indices
-            masked_indices = _.shuffle(masked_indices);
+            let unmask_indices = [];
+            if (mode == "all") {
+                // shuffle indices
+                masked_indices = _.shuffle(masked_indices);
+
+                // indices to unmask
+                unmask_indices = masked_indices
+            }
+            if (mode == "sparser") {
+                let n_unmask = 1
+                // get probs of masked notes being on
+                let masked_probs = masked_indices.map((i) => ({ index: i, prob: y_probs[2 * i] }));
+
+                // sort by probs
+                masked_probs.sort((a, b) => a.prob - b.prob);
+
+                console.log(masked_probs);
+
+                // indices to unmask
+                unmask_indices = masked_probs.slice(0, n_unmask).map((x) => x.index);
+            }
+            if (mode == "denser") {
+                let n_unmask = 1
+                // get probs of masked notes being on
+                let masked_probs = masked_indices.map((i) => ({ index: i, prob: y_probs[2 * i + 1] }));
+
+                // sort by probs
+                masked_probs.sort((a, b) => a.prob - b.prob);
 
 
-            // indices to unmask
-            let unmask_indices = masked_indices
+                // reverse order
+                masked_probs.reverse();
+
+                console.log(masked_probs);
+
+                // indices to unmask
+                unmask_indices = masked_probs.slice(0, n_unmask).map((x) => x.index);
+            }
+
+
 
             let x_2d = _.chunk(x_ch, 2);
 
             for (let i = 0; i < unmask_indices.length; i++) {
-                x_2d[unmask_indices[i]] = sample_2d[unmask_indices[i]];
+                if (mode == "all") {
+                    x_2d[unmask_indices[i]] = sample_2d[unmask_indices[i]];
+                }
+                if (mode == "sparser") {
+                    x_2d[unmask_indices[i]] = [0, 1];
+                }
+                if (mode == "denser") {
+                    x_2d[unmask_indices[i]] = [1, 0];
+                }
                 mask_ch[unmask_indices[i]] = 0;
             }
             x_ch = x_2d.flat();
         }
 
         let x_out = _.chunk(x_ch, 2).map((x) => x[0]).flat();
+
+        let n_active_end = x_out.reduce((a, b) => a + b, 0);
+
+        console.log(`n_active_start = ${n_active_start}`);
+
+        console.log(`n_active_end = ${n_active_end}`);
 
         return x_out;
     }

@@ -22,6 +22,8 @@ const Toolbar = ({
     output,
     tempo,
     setTempo,
+    pitchOffset,
+    setPitchOffset
 }) => {
 
 
@@ -53,6 +55,13 @@ const Toolbar = ({
         }
         if (key == "Backspace") {
             deleteSelection()
+        }
+
+        if (key === 'ArrowUp') {
+            runVariation("denser")
+        }
+        if (key === 'ArrowDown') {
+            runVariation("sparser")
         }
 
     }
@@ -94,6 +103,8 @@ const Toolbar = ({
                 )}
                 <button disabled={!transformsAreAvailable} onClick={runGeneration}>generation</button >
                 <button disabled={!transformsAreAvailable} onClick={runVariation}>variation</button>
+                {/* <button onClick={() => runVariation("sparser")}>sparser</button>
+                <button onClick={() => runVariation("denser")}>denser</button> */}
                 <button onClick={invertSelection}>invert selection</button>
                 <button onClick={deleteSelection}>delete selection</button>
                 {/* <button onClick={() => exportMIDI(_.chunk(roll, MODEL_TIMESTEPS))}>export midi</button> */}
@@ -111,13 +122,17 @@ const Toolbar = ({
                     <input type="range" min="-1.0" max="5.0" step="0.01" value={activityBias} onChange={(e) => setActivityBias(e.target.valueAsNumber)}></input>
                     <span>activityBias: {activityBias.toFixed(2)}</span>
                 </div>
-                <div>
+                {/* <div>
                     <input type="range" min="0.05" max="1.0" step="0.01" value={variationStrength} onChange={(e) => setVariationStrength(e.target.valueAsNumber)}></input>
                     <span>variationStrength: {variationStrength.toFixed(2)}</span>
-                </div>
+                </div> */}
                 <div>
                     <input type="range" min="30" max="300" step="1" value={tempo} onChange={(e) => setTempo(e.target.valueAsNumber)}></input>
                     <span>tempo: {tempo}</span>
+                </div>
+                <div>
+                    <input type="range" min="-24" max="24" step="1" value={pitchOffset} onChange={(e) => setPitchOffset(e.target.valueAsNumber)}></input>
+                    <span>pitchOffset: {pitchOffset}</span>
                 </div>
                 {
                     midiOutputs.length > 0 &&

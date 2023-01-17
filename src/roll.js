@@ -64,6 +64,8 @@ const Roll = ({ model }) => {
 
     const [tempo, setTempo] = React.useState(120)
 
+    const [pitchOffset, setPitchOffset] = React.useState(0)
+
     const runGeneration = () => {
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
@@ -74,6 +76,16 @@ const Roll = ({ model }) => {
         )
     }
 
+    const runVariation = (mode) => {
+        let fullMask = scaleToFull(mask, SCALE)
+        let fullRoll = scaleToFull(roll, SCALE)
+        model.regenerate(fullRoll, fullMask, 1, temperature, activityBias, variationStrength, mode).then(infilledRoll => {
+            infilledRoll = fullToScale(infilledRoll, SCALE)
+            setRoll(infilledRoll)
+        })
+    }
+
+
     const invertSelection = () => {
         let currentMask = [...mask]
         let newMask = new Array(currentMask.length).fill(0);
@@ -83,16 +95,6 @@ const Roll = ({ model }) => {
         setMask(newMask)
     }
 
-    const runVariation = () => {
-        console.log("runVariation")
-        console.log(nSteps)
-        let fullMask = scaleToFull(mask, SCALE)
-        let fullRoll = scaleToFull(roll, SCALE)
-        model.regenerate(fullRoll, fullMask, 1, temperature, activityBias, variationStrength).then(infilledRoll => {
-            infilledRoll = fullToScale(infilledRoll, SCALE)
-            setRoll(infilledRoll)
-        })
-    }
 
 
     const resetSelection = () => {
@@ -139,10 +141,12 @@ const Roll = ({ model }) => {
                     setOutput={setOutput}
                     tempo={tempo}
                     setTempo={setTempo}
+                    pitchOffset={pitchOffset}
+                    setPitchOffset={setPitchOffset}
                 ></Toolbar>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
                     <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode}></RollView>
-                    <Transport outputRef={outputRef} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} ></Transport>
+                    <Transport pitchOffset={pitchOffset} outputRef={outputRef} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} ></Transport>
                 </div >
             </div >
         </div >
