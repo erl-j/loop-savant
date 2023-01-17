@@ -10,12 +10,15 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
     const synthRef = React.useRef(null);
 
     React.useEffect(() => {
+        pitchOffsetRef.current = pitchOffset;
         if (outputRef.current != "built-in") {
             let channel = WebMidi.getOutputByName(outputRef.current).channels[1]
             console.log("sending all notes off")
             channel.sendAllNotesOff();
         }
-        pitchOffsetRef.current = pitchOffset;
+        if (synthRef.current != null) {
+            synthRef.current.releaseAll();
+        }
     }, [pitchOffset])
 
 

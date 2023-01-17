@@ -65,7 +65,7 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
             <div key={pitch} style={{ display: "flex", flexDirection: "row" }} >
                 {timeRange.map((time) => {
                     return (pitch !== "set_start" ?
-                        <div key={time}
+                        <div key={pitch * nTimeSteps + time}
                             onMouseDown={() => {
                                 if (editMode == "draw" || editMode == "erase") {
                                     const newRoll = [...roll];
@@ -97,7 +97,7 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
                             }}
                         ></div>
                         :
-                        <>
+                        <React.Fragment key={time}>
                             <div key={time} id={`set-start-${time}`}
                                 style={{
                                     width: 32,
@@ -119,12 +119,12 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
 
                             </div>
                             <Tooltip anchorId={`set-start-${time}`} place="bottom" type="dark" effect="solid" content={`set start at ${time}`}></Tooltip>
-                        </>
-
+                        </React.Fragment >
                     )
                 })}
             </div>
-        )}
+        )
+        }
     </div >
 
     // div has keyboard events for mask mode
