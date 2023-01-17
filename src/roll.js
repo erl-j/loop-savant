@@ -177,14 +177,14 @@ const Roll = ({ model }) => {
             let currentTimeStep = timeStepRef.current;
             let previousTimeStep = wrapTimeStep(currentTimeStep - 1);
 
-            let timeOffset = 0.01;
+            let timeOffset = 0.3;
 
             for (let i = 0; i < n_pitches; i++) {
                 let noteIsActive = rollRef.current[i * MODEL_TIMESTEPS + currentTimeStep] == 1;
                 let noteWasActive = rollRef.current[i * MODEL_TIMESTEPS + previousTimeStep] == 1;
                 let pitch = MIN_NOTE + SCALE[i % SCALE.length] + Math.floor(i / SCALE.length) * 12
                 let notestr = Tone.Frequency(pitch, "midi").toNote();
-                if (!noteIsActive || currentTimeStep == 0) {
+                if (noteWasActive && !noteIsActive || currentTimeStep == 0) {
                     synthRef.current.triggerRelease(notestr,
                         time + timeOffset);
                     if (midiOutput !== null) {
@@ -210,14 +210,13 @@ const Roll = ({ model }) => {
         }
             , "8n");
 
-        Tone.start();
         Tone.Transport.start();
-        if (midiTimeOffsetRef.current == 0) {
-            midiTimeOffsetRef.current =
-                300.0 + WebMidi.time - Tone.Transport.now() * 1000.0;
-        }
+        Tone.start();
 
-
+        // if (midiTimeOffsetRef.current == 0) {
+        //     midiTimeOffsetRef.current =
+        //         300.0 + WebMidi.time - Tone.Transport.now() * 1000.0;
+        // }
 
         // WebMidi
         //     .enable()
