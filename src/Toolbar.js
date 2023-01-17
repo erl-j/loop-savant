@@ -23,7 +23,8 @@ const Toolbar = ({
     tempo,
     setTempo,
     pitchOffset,
-    setPitchOffset
+    setPitchOffset,
+    selectAll
 }) => {
 
 
@@ -52,6 +53,9 @@ const Toolbar = ({
         }
         if (key === 'v' || key === 'V') {
             runVariation()
+        }
+        if (key === 'a' || key === 'A') {
+            selectAll()
         }
         if (key == "Backspace") {
             deleteSelection()
@@ -103,6 +107,7 @@ const Toolbar = ({
                 )}
                 <button disabled={!transformsAreAvailable} onClick={runGeneration}>generation</button >
                 <button disabled={!transformsAreAvailable} onClick={runVariation}>variation</button>
+                <button onClick={selectAll}>select all</button>
                 {/* <button onClick={() => runVariation("sparser")}>sparser</button>
                 <button onClick={() => runVariation("denser")}>denser</button> */}
                 <button onClick={invertSelection}>invert selection</button>

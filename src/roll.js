@@ -52,6 +52,7 @@ const Roll = ({ model }) => {
 
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
+
     const [nSteps, setNSteps] = React.useState(20)
     const [temperature, setTemperature] = React.useState(1.0)
     const [activityBias, setActivityBias] = React.useState(0.85)
@@ -85,6 +86,10 @@ const Roll = ({ model }) => {
         })
     }
 
+    const selectAll = () => {
+        setMask(new Array(nPitches * MODEL_TIMESTEPS).fill(1))
+    }
+
 
     const invertSelection = () => {
         let currentMask = [...mask]
@@ -94,8 +99,6 @@ const Roll = ({ model }) => {
         })
         setMask(newMask)
     }
-
-
 
     const resetSelection = () => {
         setMask(new Array(nPitches * MODEL_TIMESTEPS).fill(0))
@@ -143,6 +146,7 @@ const Roll = ({ model }) => {
                     setTempo={setTempo}
                     pitchOffset={pitchOffset}
                     setPitchOffset={setPitchOffset}
+                    selectAll={selectAll}
                 ></Toolbar>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
                     <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode}></RollView>
