@@ -96,6 +96,7 @@ const Roll = ({ model }) => {
 
     const selectAll = () => {
         setMask(new Array(nPitches * MODEL_TIMESTEPS).fill(1))
+        setEditMode("select")
     }
 
 

@@ -41,7 +41,7 @@ const ToolbarButton = ({ iconCharacter, text, keyboardCharacter, disabled, onAct
             <button id={text} disabled={disabled} style={{ backgroundColor: disabled ? "lightgrey" : isActive ? "blue" : "white" }}
                 onClick={onActivate}>
                 {iconCharacter}</button>
-            <Tooltip anchorId={text} content={text} />
+            <Tooltip anchorId={text} content={text + " " + `(${keyboardCharacter})`} />
         </>
     )
 

@@ -52,19 +52,20 @@ const Toolbar = ({
     return (
         <div style={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
             <div style={{ display: "flex", flexDirection: "row" }}>
-                <ToolbarButton text="draw" iconCharacter="✏️" keyboardCharacter="d" onActivate={() => setEditMode("draw")} isActive={editMode == "draw"} />
-                <ToolbarButton text="erase" iconCharacter="🧽" keyboardCharacter="e" onActivate={() => setEditMode("erase")} isActive={editMode == "erase"} />
-                <ToolbarButton text="select" iconCharacter="🀆" keyboardCharacter="s" onActivate={() => setEditMode("select")} isActive={editMode == "select"} />
-                <ToolbarButton text="invert" iconCharacter="🔄" keyboardCharacter="i" onActivate={invertSelection} disabled={editMode == "select"} />
-
+                <ToolbarButton text="draw tool" iconCharacter="✏️" keyboardCharacter="d" onActivate={() => setEditMode("draw")} isActive={editMode == "draw"} />
+                <ToolbarButton text="erase tool" iconCharacter="🧽" keyboardCharacter="e" onActivate={() => setEditMode("erase")} isActive={editMode == "erase"} />
+                <ToolbarButton text="select tool" iconCharacter="🀆" keyboardCharacter="s" onActivate={() => setEditMode("select")} isActive={editMode == "select"} />
+                {/* <ToolbarButton text="select all" iconCharacter="📝" keyboardCharacter="a" onActivate={selectAll} /> */}
 
                 <ToolbarButton text="generation" iconCharacter="🪄" keyboardCharacter="g" onActivate={runGeneration} disabled={!transformsAreAvailable} />
                 <ToolbarButton text="variation" iconCharacter="🧬" keyboardCharacter="v" onActivate={runVariation} disabled={!transformsAreAvailable} />
-                <ToolbarButton text="select all" iconCharacter="📝" keyboardCharacter="a" onActivate={selectAll} disabled={editMode == "select"} />
-                <ToolbarButton text="delete" iconCharacter="🗑️" keyboardCharacter="Backspace" onActivate={deleteSelection} disabled={editMode == "select"} />
-                <ToolbarButton text="denser" iconCharacter="📈" keyboardCharacter="ArrowUp" onActivate={() => runVariation("denser")} disabled={editMode == "select"} hide={true} />
-                <ToolbarButton text="sparser" iconCharacter="📉" keyboardCharacter="ArrowDown" onActivate={() => runVariation("sparser")} disabled={editMode == "select"} hide={true} />
 
+
+                <ToolbarButton text="denser" iconCharacter="📈" keyboardCharacter="ArrowUp" onActivate={() => runVariation("denser")} disabled={!transformsAreAvailable} hide={true} />
+                <ToolbarButton text="sparser" iconCharacter="📉" keyboardCharacter="ArrowDown" onActivate={() => runVariation("sparser")} disabled={!transformsAreAvailable} hide={true} />
+
+                <ToolbarButton text="delete selected notes" iconCharacter="🗑️" keyboardCharacter="Backspace" onActivate={deleteSelection} disabled={!transformsAreAvailable} />
+                <ToolbarButton text="invert selection" iconCharacter="🔄" keyboardCharacter="i" onActivate={invertSelection} />
                 {/* {modes.map((mode) => <button key={mode} onClick={() => setEditMode(mode)} style={{ backgroundColor: editMode == mode ? "lightblue" : "white" }}>{mode}</button>
                 )}
                 <button disabled={!transformsAreAvailable} onClick={runGeneration}>generation</button >

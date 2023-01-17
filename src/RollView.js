@@ -3,6 +3,7 @@ import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { useState } from "react";
 import "./index.css";
 import * as _ from "lodash";
+import { Tooltip } from "react-tooltip";
 
 const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask, editMode, setTimeStep }) => {
 
@@ -96,22 +97,31 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
                             }}
                         ></div>
                         :
-                        <div key={time} style={{
-                            width: 32,
-                            height: 18,
-                            margin: 0,
-                            border: "1px solid darkgray",
-                            backgroundColor: "green",
-                        }}
-                            onClick={() => {
-                                const newRoll = _.chunk(roll, nTimeSteps).map(x => mutableRotateRight(x, nTimeSteps - time)).flat();
-                                setRoll(newRoll);
-                                const newMask = _.chunk(mask, nTimeSteps).map(x => mutableRotateRight(x, nTimeSteps - time)).flat();
-                                setMask(newMask);
-                                setTimeStep(step => (step + nTimeSteps - time) % nTimeSteps);
-                            }
-                            }
-                        ></div>)
+                        <>
+                            <div key={time} id={`set-start-${time}`}
+                                style={{
+                                    width: 32,
+                                    height: 18,
+                                    margin: 0,
+                                    border: "1px solid darkgray",
+                                    backgroundColor: "green",
+                                }}
+                                onClick={() => {
+                                    const newRoll = _.chunk(roll, nTimeSteps).map(x => mutableRotateRight(x, nTimeSteps - time)).flat();
+                                    setRoll(newRoll);
+                                    const newMask = _.chunk(mask, nTimeSteps).map(x => mutableRotateRight(x, nTimeSteps - time)).flat();
+                                    setMask(newMask);
+                                    setTimeStep(step => (step + nTimeSteps - time) % nTimeSteps);
+                                }
+                                }
+
+                            >
+
+                            </div>
+                            <Tooltip anchorId={`set-start-${time}`} place="bottom" type="dark" effect="solid" content={`set start at ${time}`}></Tooltip>
+                        </>
+
+                    )
                 })}
             </div>
         )}
