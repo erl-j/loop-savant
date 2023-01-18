@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/static/css/main.24717a71.css",
-    "main.js": "/static/js/main.92295dca.js",
-    "static/js/787.4b0b92c2.chunk.js": "/static/js/787.4b0b92c2.chunk.js",
-    "index.html": "/index.html",
-    "main.24717a71.css.map": "/static/css/main.24717a71.css.map",
-    "main.92295dca.js.map": "/static/js/main.92295dca.js.map",
-    "787.4b0b92c2.chunk.js.map": "/static/js/787.4b0b92c2.chunk.js.map"
+    "main.css": "/erl-j.github.io/composer-web/static/css/main.24717a71.css",
+    "main.js": "/erl-j.github.io/composer-web/static/js/main.bd868279.js",
+    "static/js/787.4b0b92c2.chunk.js": "/erl-j.github.io/composer-web/static/js/787.4b0b92c2.chunk.js",
+    "index.html": "/erl-j.github.io/composer-web/index.html",
+    "main.24717a71.css.map": "/erl-j.github.io/composer-web/static/css/main.24717a71.css.map",
+    "main.bd868279.js.map": "/erl-j.github.io/composer-web/static/js/main.bd868279.js.map",
+    "787.4b0b92c2.chunk.js.map": "/erl-j.github.io/composer-web/static/js/787.4b0b92c2.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.24717a71.css",
-    "static/js/main.92295dca.js"
+    "static/js/main.bd868279.js"
   ]
 }
