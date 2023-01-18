@@ -56,7 +56,7 @@ const Roll = ({ model }) => {
     const [nSteps, setNSteps] = React.useState(20)
     const [temperature, setTemperature] = React.useState(1.0)
     const [activityBias, setActivityBias] = React.useState(0.85)
-    const [editMode, setEditMode] = React.useState("draw");
+    const [editMode, setEditMode] = React.useState("select");
     const [variationStrength, setVariationStrength] = React.useState(0.25)
     const [output, setOutput] = React.useState("built-in")
     const [tempo, setTempo] = React.useState(160)

@@ -2,6 +2,7 @@ import Roll from './Roll.js';
 import React from 'react';
 import * as ort from 'onnxruntime-web';
 import Model from './Model.js';
+import Welcome from './Welcome.js';
 
 
 function App() {
@@ -20,7 +21,11 @@ function App() {
   return (
     <div className="App" style={{ width: "100%" }}>
       {/* <ModelTest /> */}
-      {model && (isOn ? <Roll model={model} /> : <button onClick={() => setIsOn(!isOn)}>{isOn ? "Stop" : "Start"}</button>)}
+      {model && (isOn ? <Roll model={model} /> :
+        <>
+          <Welcome></Welcome> <button onClick={() => setIsOn(!isOn)}>{isOn ? "Stop" : "Start"}</button>
+        </>
+      )}
     </div>
   );
 }

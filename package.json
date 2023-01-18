@@ -1,8 +1,8 @@
 {
-  "name": "composer-web",
+  "name": "loop-savant",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://erl-j.github.io/composer-web",
+  "homepage": "https://erl-j.github.io/loop-savant",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",

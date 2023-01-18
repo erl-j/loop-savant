@@ -2,6 +2,7 @@ import * as React from 'react';
 import { FaAdjust, FaCropAlt, FaDna, FaEraser, FaExpand, FaMagic, FaMinus, FaPencilAlt, FaPlus, FaTrashAlt } from "react-icons/fa";
 import Select from 'react-select';
 import { WebMidi } from "webmidi";
+import DropDown from './DropDown';
 import "./index.css";
 import Range from './Range';
 import ToolbarButton from './ToolbarButton';
@@ -61,17 +62,6 @@ const Toolbar = ({
         { value: 'sawtooth', label: 'sawtooth' },
     ]
 
-
-
-    const selectStyles = {
-        control: (baseStyles, state) => ({
-            ...baseStyles,
-            borderRadius: 0,
-            fontSize: 12,
-        }),
-    }
-
-
     return (
         <div style={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", marginBottom: 32 }} >
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-start", width: "38%" }}>
@@ -100,9 +90,9 @@ const Toolbar = ({
             </div>
             <div style={{ width: "12.5%" }}>
                 <h4>AI</h4>
-                <Range name="# steps" description="set tempo in bpm" type="range" min="1" max="30" step="1" value={nSteps} onChange={(e) => setNSteps(e)}></Range>
-                <Range name="temp." displayValue={temperature.toFixed(2)} description="set temperature" type="range" min="0.0" max="2.0" step="0.01" value={temperature} onChange={(e) => setTemperature(e)}></Range>
-                <Range name="activity" displayValue={activityBias.toFixed(2)} description="set activity bias" type="range" min="-2.0" max="2.0" step="0.01" value={activityBias} onChange={(e) => setActivityBias(e)}></Range>
+                <Range label="# steps" description="set tempo in bpm" type="range" min="1" max="30" step="1" value={nSteps} onChange={(e) => setNSteps(e)}></Range>
+                <Range label="temp." displayValue={temperature.toFixed(2)} description="set temperature" type="range" min="0.0" max="2.0" step="0.01" value={temperature} onChange={(e) => setTemperature(e)}></Range>
+                <Range label="activity" displayValue={activityBias.toFixed(2)} description="set activity bias" type="range" min="-2.0" max="2.0" step="0.01" value={activityBias} onChange={(e) => setActivityBias(e)}></Range>
             </div>
             {/* <div>
                     <input type="range" min="0.05" max="1.0" step="0.01" value={variationStrength} onChange={(e) => setVariationStrength(e)}></input>
@@ -111,46 +101,41 @@ const Toolbar = ({
 
             <div style={{ width: "12.5%" }}>
                 <h4>Playback</h4>
-                <Range name="tempo" displayValue={tempo + "bpm"} description="set tempo in bpm" type="range" min="30" max="300" step="1" value={tempo} onChange={(e) => setTempo(e)}></Range>
-                <Range name="pitch" displayValue={pitchOffset > 0 ? "+" + pitchOffset : pitchOffset} description="transpose output" type="range" min="-24" max="24" step="1" value={pitchOffset} onChange={(e) => setPitchOffset(e)}></Range>
+                <Range label="tempo" displayValue={tempo + "bpm"} description="set tempo in bpm" type="range" min="30" max="300" step="1" value={tempo} onChange={(e) => setTempo(e)}></Range>
+                <Range label="pitch" displayValue={pitchOffset > 0 ? "+" + pitchOffset : pitchOffset} description="transpose output" type="range" min="-24" max="24" step="1" value={pitchOffset} onChange={(e) => setPitchOffset(e)}></Range>
                 {midiOutputs.length > 0 &&
-                    <div>
-                        <span>output</span>
-                        <Select styles={selectStyles} isSearchable={false} defaultValue={midiOptions[0]} options={midiOptions} onChange={(e) => setOutput(e.value)}></Select>
-                    </div>
+                    <DropDown label="output" options={midiOptions} value={output} onChange={(e) => setOutput(e)}></DropDown>
                 }
             </div>
-            {output === "built-in" &&
-                <>
-                    <div style={{ width: "12.5%" }}>
-                        <h4>Synth</h4>
-                        <Range name="volume" min={-20} max={0} step={0.01} value={synthParameters.volume} onChange={(value) => {
-                            setSynthParameters({ ...synthParameters, volume: value })
-                        }} />
-                        <Range name="attack" min={0.01} max={1} step={0.01} value={synthParameters.envelope.attack} onChange={(value) => {
-                            setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, attack: value } })
-                        }} />
-                        <Range name="sustain" min={0.01} max={1} step={0.01} value={synthParameters.envelope.sustain} onChange={(value) => {
-                            setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, sustain: value } })
-                        }} />
-                    </div>
-                    <div style={{ width: "12.5%" }}>
-                        <h4>⚘</h4>
-                        <Range name="decay" min={0.01} max={1} step={0.01} value={synthParameters.envelope.decay} onChange={(value) => {
-                            setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, decay: value } })
-                        }} />
-                        <Range name="release" min={0.01} max={1} step={0.01} value={synthParameters.envelope.release} onChange={(value) => {
-                            setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, release: value } })
-                        }} />
-                        <div>
-                            <span>waveform</span>
-                            <Select styles={selectStyles} options={waveformOptions} value={waveformOptions.find(option => option.value === synthParameters.oscillator.type)} onChange={(option) => {
-                                setSynthParameters({ ...synthParameters, oscillator: { ...synthParameters.oscillator, type: option.value } })
-                            }} />
-                        </div>
-                    </div>
-                </>
-            }
+            <>
+                <div style={{ width: "12.5%", display: output !== "built-in" ? "none" : "" }}>
+                    <h4>Synth</h4>
+                    <Range label="volume" min={-20} max={0} step={0.01} value={synthParameters.volume} onChange={(value) => {
+                        setSynthParameters({ ...synthParameters, volume: value })
+                    }} />
+                    <Range label="attack" min={0.01} max={1} step={0.01} value={synthParameters.envelope.attack} onChange={(value) => {
+                        setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, attack: value } })
+                    }} />
+                    <Range label="sustain" min={0.01} max={1} step={0.01} value={synthParameters.envelope.sustain} onChange={(value) => {
+                        setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, sustain: value } })
+                    }} />
+                </div>
+                <div style={{ width: "12.5%", display: output !== "built-in" ? "none" : "" }}>
+                    <h4>⚘</h4>
+                    <Range label="decay" min={0.01} max={1} step={0.01} value={synthParameters.envelope.decay} onChange={(value) => {
+                        setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, decay: value } })
+                    }} />
+                    <Range label="release" min={0.01} max={1} step={0.01} value={synthParameters.envelope.release} onChange={(value) => {
+                        setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, release: value } })
+                    }} />
+                    <DropDown label="waveform" value={synthParameters.oscillator.type} options={waveformOptions} onChange={(value) => {
+                        setSynthParameters({
+                            ...synthParameters, oscillator: { ...synthParameters.oscillator, type: value }
+                        })
+                    }
+                    } />
+                </div>
+            </>
 
         </div >
 

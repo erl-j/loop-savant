@@ -4,21 +4,21 @@ import { Tooltip } from 'react-tooltip'
 import 'react-tooltip/dist/react-tooltip.css';
 
 
-const Range = ({ min, max, value, step, onChange, name, description, displayValue }) => {
+const Range = ({ min, max, value, step, onChange, label, description, displayValue }) => {
 
     if (displayValue === undefined) {
         displayValue = value
     }
     return (
         <>
-            <div id={name}>
-                <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                    <div>{name}</div>
+            <div id={label}>
+                <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", fontSize: 13 }}>
+                    <div>{label}</div>
                     <div>{displayValue}</div>
                 </div>
                 <input className="slider" type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(e.target.valueAsNumber)}></input>
             </div>
-            <Tooltip place={"right"} anchorId={name} content={description} style={{ zIndex: 10 }} />
+            <Tooltip place={"right"} anchorId={label} content={description} style={{ zIndex: 10 }} />
         </>
     )
 }
