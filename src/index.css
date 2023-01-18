@@ -67,6 +67,14 @@ code {
   }
 } */
 
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 0 0px teal;
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+}
 
 @keyframes pulse-animation {
   0% {

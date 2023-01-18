@@ -48,7 +48,7 @@ let nPitches = (MODEL_PITCHES / 12) * SCALE.length
 const Roll = ({ model }) => {
 
     const [roll, setRoll, rollRef] = useRefState(new Array(nPitches * MODEL_TIMESTEPS).fill(0))
-    const [mask, setMask] = React.useState([...new Array(nPitches * MODEL_TIMESTEPS).fill(0)])
+    const [mask, setMask] = React.useState([...new Array(nPitches * MODEL_TIMESTEPS).fill(1)])
 
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
@@ -157,7 +157,7 @@ const Roll = ({ model }) => {
     // setSynthParameters
 
     return (
-        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 32 }}>
+        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 16 }}>
             <div style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                     <Toolbar editMode={editMode} setEditMode={setEditMode}
