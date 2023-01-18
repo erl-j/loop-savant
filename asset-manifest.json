@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/loop-savant/static/css/main.b6465b4e.css",
-    "main.js": "/loop-savant/static/js/main.66d57d76.js",
+    "main.css": "/loop-savant/static/css/main.7d87841c.css",
+    "main.js": "/loop-savant/static/js/main.1e53df63.js",
     "static/js/787.e9f01d36.chunk.js": "/loop-savant/static/js/787.e9f01d36.chunk.js",
     "static/media/roboto-latin-900italic.woff": "/loop-savant/static/media/roboto-latin-900italic.c20d916c1a1b094c1cec.woff",
     "static/media/roboto-latin-300italic.woff": "/loop-savant/static/media/roboto-latin-300italic.bd5b7a13f2c52b531a2a.woff",
@@ -56,12 +56,12 @@
     "static/media/roboto-mono-latin-400.woff2": "/loop-savant/static/media/roboto-mono-latin-400.535bc89d4af715503b01.woff2",
     "static/media/roboto-mono-latin-700.woff2": "/loop-savant/static/media/roboto-mono-latin-700.c5c3959c04004102ea46.woff2",
     "index.html": "/loop-savant/index.html",
-    "main.b6465b4e.css.map": "/loop-savant/static/css/main.b6465b4e.css.map",
-    "main.66d57d76.js.map": "/loop-savant/static/js/main.66d57d76.js.map",
+    "main.7d87841c.css.map": "/loop-savant/static/css/main.7d87841c.css.map",
+    "main.1e53df63.js.map": "/loop-savant/static/js/main.1e53df63.js.map",
     "787.e9f01d36.chunk.js.map": "/loop-savant/static/js/787.e9f01d36.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.b6465b4e.css",
-    "static/js/main.66d57d76.js"
+    "static/css/main.7d87841c.css",
+    "static/js/main.1e53df63.js"
   ]
 }
