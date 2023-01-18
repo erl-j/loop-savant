@@ -16,7 +16,7 @@ const Range = ({ min, max, value, step, onChange, name, description, displayValu
                     <div>{name}</div>
                     <div>{displayValue}</div>
                 </div>
-                <input className="slider" type="range" min={min} max={max} step={step} value={value} onChange={onChange}></input>
+                <input className="slider" type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(e.target.valueAsNumber)}></input>
             </div>
             <Tooltip place={"right"} anchorId={name} content={description} style={{ zIndex: 10 }} />
         </>

@@ -70,8 +70,8 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
         }
     }
 
-    let tileWidth = 32;
-    let tileHeight = 18;
+    let tileWidth = 36;
+    let tileHeight = 20;
 
     const renderTile = (pitch, time) => {
 

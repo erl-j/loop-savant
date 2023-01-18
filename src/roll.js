@@ -7,7 +7,7 @@ import RollView from "./RollView";
 import Toolbar from "./Toolbar";
 import Transport from "./Transport";
 import useRefState from "./useRefState";
-
+import Sidepanel from "./Sidepanel";
 
 const fullToScale = (roll, scale) => {
     let out_roll_2d = []
@@ -56,19 +56,26 @@ const Roll = ({ model }) => {
     const [nSteps, setNSteps] = React.useState(20)
     const [temperature, setTemperature] = React.useState(1.0)
     const [activityBias, setActivityBias] = React.useState(0.85)
-
     const [editMode, setEditMode] = React.useState("draw");
-
     const [variationStrength, setVariationStrength] = React.useState(0.25)
-
-    const [output, setOutput, outputRef] = useRefState("built-in")
-
+    const [output, setOutput] = React.useState("built-in")
     const [tempo, setTempo] = React.useState(160)
-
     const [pitchOffset, setPitchOffset] = React.useState(0)
-
     const [modelIsBusy, setModelIsBusy] = React.useState(false)
 
+
+    const [synthParameters, setSynthParameters] = React.useState({
+        oscillator: {
+            type: "sine"
+        },
+        envelope: {
+            attack: 0.01,
+            release: 0.05,
+            sustain: 0.5,
+        },
+        volume: -12
+    }
+    )
     const runGeneration = () => {
 
         setModelIsBusy(true)
@@ -140,32 +147,54 @@ const Roll = ({ model }) => {
 
     let n_masked = mask.reduce((a, b) => a + b, 0)
 
+
+    // setOutput,
+    // tempo,
+    // setTempo,
+    // pitchOffset,
+    // setPitchOffset,
+    // synthParameters,
+    // setSynthParameters
+
     return (
         <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 32 }}>
             <div style={{ display: "flex", flexDirection: "column" }}>
-                <Toolbar editMode={editMode} setEditMode={setEditMode}
-                    nSteps={nSteps} setNSteps={setNSteps}
-                    temperature={temperature} setTemperature={setTemperature}
-                    activityBias={activityBias} setActivityBias={setActivityBias}
-                    transformsAreAvailable={n_masked > 0}
-                    runGeneration={runGeneration}
-                    runVariation={runVariation}
-                    deleteSelection={deleteSelection}
-                    invertSelection={invertSelection}
-                    setVariationStrength={setVariationStrength}
-                    variationStrength={variationStrength}
-                    output={output}
-                    setOutput={setOutput}
-                    tempo={tempo}
-                    setTempo={setTempo}
-                    pitchOffset={pitchOffset}
-                    setPitchOffset={setPitchOffset}
-                    selectAll={selectAll}
-                    modelIsBusy={modelIsBusy}
-                ></Toolbar>
+                <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+                    <Toolbar editMode={editMode} setEditMode={setEditMode}
+                        nSteps={nSteps} setNSteps={setNSteps}
+                        temperature={temperature} setTemperature={setTemperature}
+                        activityBias={activityBias} setActivityBias={setActivityBias}
+                        transformsAreAvailable={n_masked > 0}
+                        runGeneration={runGeneration}
+                        runVariation={runVariation}
+                        deleteSelection={deleteSelection}
+                        invertSelection={invertSelection}
+                        setVariationStrength={setVariationStrength}
+                        variationStrength={variationStrength}
+                        output={output}
+                        setOutput={setOutput}
+                        tempo={tempo}
+                        setTempo={setTempo}
+                        pitchOffset={pitchOffset}
+                        setPitchOffset={setPitchOffset}
+                        selectAll={selectAll}
+                        modelIsBusy={modelIsBusy}
+                        synthParameters={synthParameters}
+                        setSynthParameters={setSynthParameters}
+                    ></Toolbar>
+                    {/* <Sidepanel
+                        setOutput={setOutput}
+                        tempo={tempo}
+                        setTempo={setTempo}
+                        pitchOffset={pitchOffset}
+                        setPitchOffset={setPitchOffset}
+                        synthParameters={synthParameters}
+                        setSynthParameters={setSynthParameters}></Sidepanel> */}
+
+                </div>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
                     <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode} modelIsBusy={modelIsBusy} scale={SCALE}></RollView>
-                    <Transport output={output} pitchOffset={pitchOffset} outputRef={outputRef} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} ></Transport>
+                    <Transport output={output} pitchOffset={pitchOffset} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} synthParameters={synthParameters} ></Transport>
                 </div >
             </div >
         </div >

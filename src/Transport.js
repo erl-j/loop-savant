@@ -4,14 +4,13 @@ import { WebMidi } from 'webmidi';
 
 const MIN_NOTE = 43;
 const POLYPHONY = 36;
-const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, outputRef, tempo, pitchOffset, output }) => {
+const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, tempo, pitchOffset, output, synthParameters }) => {
 
     const pitchOffsetRef = React.useRef(null);
     const synthRef = React.useRef(null);
+    const outputRef = React.useRef(null);
 
     React.useEffect(() => {
-
-
         WebMidi.outputs.forEach(output => {
             output.sendAllNotesOff();
             output.sendAllSoundOff();
@@ -20,6 +19,7 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
             synthRef.current.releaseAll();
         }
         pitchOffsetRef.current = pitchOffset;
+        outputRef.current = output;
     }, [pitchOffset, output])
 
 
@@ -27,6 +27,13 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
         Tone.Transport.bpm.rampTo(tempo, 0.5)
     }
         , [tempo])
+
+    React.useEffect(() => {
+        if (synthRef.current) {
+            synthRef.current.set(synthParameters)
+            synthRef.current.volume.value = synthParameters.volume;
+        }
+    }, [synthParameters])
 
 
     React.useEffect(() => {
@@ -93,11 +100,11 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
             console.log("transport unmounting")
             Tone.Transport.stop();
             Tone.Transport.cancel();
-            if (outputRef.current != "built-in") {
-                let channel = WebMidi.getOutputByName(outputRef.current).channels[1]
-                console.log("sending all notes off")
-                channel.sendAllNotesOff();
-            }
+
+            WebMidi.outputs.forEach(output => {
+                output.sendAllNotesOff();
+                output.sendAllSoundOff();
+            })
         }
 
         window.addEventListener('beforeunload', cleanup);
