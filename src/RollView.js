@@ -118,41 +118,15 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
                 {timeRange.map((time) => {
                     return (pitch !== "set_start" ?
                         renderTile(pitch, time)
-                        // <Tile dataKey={pitch * nTimeSteps + time} key={pitch * nTimeSteps + time} isOn={roll[pitch * nTimeSteps + time] == 1} isSelected={mask[pitch * nTimeSteps + time] == 1} isAccent={time % 4 == 0} isBeingPlayed={time == timeStep} onPressTile={() => onPressTile(pitch, time)} />
-                        // <div key={pitch * nTimeSteps + time}
-                        //     data-key={pitch * nTimeSteps + time}
-                        //     className="selectable"
-                        //     onMouseDown={() => {
-                        //         onPressTile(pitch, time);
-                        //     }
-                        //     }
-                        //     onMouseEnter={(e) => {
-                        //         // if pressed, toggle
-                        //         if (e.buttons == 1) {
-                        //             onPressTile(pitch, time);
-                        //         }
-
-                        //     }}
-
-                        //     style={{
-                        //         width: 32,
-                        //         height: 18,
-                        //         margin: 0,
-                        //         opacity: mask[pitch * nTimeSteps + time] == 0 ? 1 : 0.1,
-                        //         backgroundColor: roll[pitch * nTimeSteps + time] == 0 ?
-                        //             (time % 4 == 0 ? "lightgray" : "white") : "black",
-                        //         border: time == timeStep ? "1px solid red" : "1px solid darkgray"
-                        //     }}
-                        // ></div>
                         :
                         <React.Fragment key={time}>
                             <div key={time} id={`set-start-${time}`}
                                 style={{
                                     width: tileWidth,
-                                    height: tileHeight * 2,
+                                    height: tileHeight,
                                     margin: 0,
                                     border: "1px solid white",
-                                    // backgroundColor: "green",
+                                    backgroundColor: "gray",
 
 
                                 }}
@@ -166,15 +140,9 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
                                 }
 
                             >
-                                <div style={{
-                                    backgroundColor: "black",
-                                    width: tileHeight * 0.2,
-                                    height: tileHeight * 0.2,
-                                    margin: "auto",
-                                    borderRadius: "100%",
-                                }}></div>
+
                             </div>
-                            <Tooltip anchorId={`set-start-${time}`} place="bottom" type="dark" effect="solid" content={`set start at ${time}`}></Tooltip>
+                            <Tooltip anchorId={`set-start-${time}`} place="bottom" type="dark" effect="solid" content={`set ${time} as start`}></Tooltip>
                         </React.Fragment >
                     )
                 })}

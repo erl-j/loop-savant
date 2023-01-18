@@ -4,22 +4,23 @@ import { WebMidi } from 'webmidi';
 
 const MIN_NOTE = 43;
 const POLYPHONY = 36;
-const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, outputRef, tempo, pitchOffset }) => {
+const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, outputRef, tempo, pitchOffset, output }) => {
 
-    const pitchOffsetRef = React.useRef(pitchOffset);
+    const pitchOffsetRef = React.useRef(null);
     const synthRef = React.useRef(null);
 
     React.useEffect(() => {
-        pitchOffsetRef.current = pitchOffset;
-        if (outputRef.current != "built-in") {
-            let channel = WebMidi.getOutputByName(outputRef.current).channels[1]
-            console.log("sending all notes off")
-            channel.sendAllNotesOff();
-        }
-        if (synthRef.current != null) {
+
+
+        WebMidi.outputs.forEach(output => {
+            output.sendAllNotesOff();
+            output.sendAllSoundOff();
+        })
+        if (synthRef.current) {
             synthRef.current.releaseAll();
         }
-    }, [pitchOffset])
+        pitchOffsetRef.current = pitchOffset;
+    }, [pitchOffset, output])
 
 
     React.useEffect(() => {
