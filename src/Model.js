@@ -77,22 +77,19 @@ class Model {
 
         let n_masked = mask_ch.reduce((a, b) => a + b, 0);
 
-
-
-
         for (let t = 0; t < n_steps; t++) {
 
             let x_ch_2d = _.chunk(x_ch, 2)
 
 
             if (mode == "all") {
-                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_in[i] == 1) ? 1 : 0);
+                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_ch[i] == 1) ? 1 : 0);
             }
             if (mode == "sparser") {
-                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_in[i] == 1 && x_ch_2d[i][0] == 1) ? 1 : 0);
+                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_ch[i] == 1 && x_ch_2d[i][0] == 1) ? 1 : 0);
             }
             if (mode == "denser") {
-                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_in[i] == 1 && x_ch_2d[i][1] == 1) ? 1 : 0);
+                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_ch[i] == 1 && x_ch_2d[i][1] == 1) ? 1 : 0);
             }
 
             let in_masked_indices = []
@@ -158,7 +155,9 @@ class Model {
                 unmask_indices = masked_indices
             }
             if (mode == "sparser") {
+
                 let n_unmask = 1
+
                 // get probs of masked notes being on
                 let masked_probs = masked_indices.map((i) => ({ index: i, prob: y_probs[2 * i] }));
 
@@ -187,8 +186,6 @@ class Model {
                 // indices to unmask
                 unmask_indices = masked_probs.slice(0, n_unmask).map((x) => x.index);
             }
-
-
 
             let x_2d = _.chunk(x_ch, 2);
 
@@ -233,9 +230,7 @@ class Model {
             let y, y_probs;
             [y, y_probs] = await this.forward(x_ch, mask_ch);
 
-
             // show datatype of acitivityBias
-
             y = _.chunk(y, 2).map(x => [x[0] + activityBias, x[1]]).flat();
             y_probs = _.chunk(y, 2).map(x => softmax(x, temperature)).flat();
 
