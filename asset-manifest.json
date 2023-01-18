@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/composer-web/static/css/main.f01238dd.css",
-    "main.js": "/composer-web/static/js/main.31ec4e1d.js",
+    "main.css": "/composer-web/static/css/main.19eb8140.css",
+    "main.js": "/composer-web/static/js/main.da2b00b7.js",
     "static/js/787.4b0b92c2.chunk.js": "/composer-web/static/js/787.4b0b92c2.chunk.js",
     "static/media/roboto-latin-900italic.woff": "/composer-web/static/media/roboto-latin-900italic.c20d916c1a1b094c1cec.woff",
     "static/media/roboto-latin-300italic.woff": "/composer-web/static/media/roboto-latin-300italic.bd5b7a13f2c52b531a2a.woff",
@@ -56,12 +56,12 @@
     "static/media/roboto-mono-latin-400.woff2": "/composer-web/static/media/roboto-mono-latin-400.535bc89d4af715503b01.woff2",
     "static/media/roboto-mono-latin-700.woff2": "/composer-web/static/media/roboto-mono-latin-700.c5c3959c04004102ea46.woff2",
     "index.html": "/composer-web/index.html",
-    "main.f01238dd.css.map": "/composer-web/static/css/main.f01238dd.css.map",
-    "main.31ec4e1d.js.map": "/composer-web/static/js/main.31ec4e1d.js.map",
+    "main.19eb8140.css.map": "/composer-web/static/css/main.19eb8140.css.map",
+    "main.da2b00b7.js.map": "/composer-web/static/js/main.da2b00b7.js.map",
     "787.4b0b92c2.chunk.js.map": "/composer-web/static/js/787.4b0b92c2.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f01238dd.css",
-    "static/js/main.31ec4e1d.js"
+    "static/css/main.19eb8140.css",
+    "static/js/main.da2b00b7.js"
   ]
 }
