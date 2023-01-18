@@ -25,5 +25,27 @@ code {
 }
 
 
+/* @keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0px rgb(55, 10, 64);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+  }
+} */
+
+
+@keyframes pulse-animation {
+  0% {
+
+  }
+  50% {
+    opacity: 0.1;
+  }
+  100% {
+  }
+}
+
+
 
 /* Path: className selectable */

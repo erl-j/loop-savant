@@ -63,7 +63,7 @@ const Roll = ({ model }) => {
 
     const [output, setOutput, outputRef] = useRefState("built-in")
 
-    const [tempo, setTempo] = React.useState(120)
+    const [tempo, setTempo] = React.useState(160)
 
     const [pitchOffset, setPitchOffset] = React.useState(0)
 
@@ -163,7 +163,7 @@ const Roll = ({ model }) => {
                     modelIsBusy={modelIsBusy}
                 ></Toolbar>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
-                    <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode}></RollView>
+                    <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode} modelIsBusy={modelIsBusy}></RollView>
                     <Transport pitchOffset={pitchOffset} outputRef={outputRef} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} ></Transport>
                 </div >
             </div >

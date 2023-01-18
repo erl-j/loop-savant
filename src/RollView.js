@@ -4,8 +4,9 @@ import { useState } from "react";
 import "./index.css";
 import * as _ from "lodash";
 import { Tooltip } from "react-tooltip";
+import "./index.css";
 
-const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask, editMode, setTimeStep }) => {
+const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask, editMode, setTimeStep, modelIsBusy }) => {
 
     const pitchRange = Array.from(Array(nPitches).keys());
     const timeRange = Array.from(Array(nTimeSteps).keys());
@@ -60,51 +61,100 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
         return arr;
     }
 
+    const onPressTile = (pitch, time) => {
+        if (editMode == "draw" || editMode == "erase") {
+            const newRoll = [...roll];
+            newRoll[pitch * nTimeSteps + time] = editMode == "draw" ? 1 : 0;
+            setRoll(newRoll);
+        }
+    }
+
+    let tileWidth = 32;
+    let tileHeight = 18;
+
+    const renderTile = (pitch, time) => {
+
+        let isSelected = mask[pitch * nTimeSteps + time] == 1;
+        let isOn = roll[pitch * nTimeSteps + time] == 1;
+        let isAccent = time % 4 == 0;
+        let isBeingPlayed = time == timeStep;
+
+
+
+        return (<div key={pitch * nTimeSteps + time}
+            data-key={pitch * nTimeSteps + time}
+            className="selectable"
+            onMouseDown={() => {
+                onPressTile(pitch, time);
+            }
+            }
+            onMouseEnter={(e) => {
+                // if pressed, toggle
+                if (e.buttons == 1) {
+                    onPressTile(pitch, time);
+                }
+
+            }}
+
+            style={{
+                width: tileWidth,
+                height: tileHeight,
+                margin: 0,
+                opacity: !isOn ?
+                    (isAccent ? 0.1 : 0.05) : 1.0,
+                backgroundColor: isSelected ? "teal" : "black",
+                border: isBeingPlayed ? "1px solid gray" : "1px solid darkgray",
+                transition: "transform 0.3s ease-out",
+                transform: (isBeingPlayed & isOn) ? "scale(1.1, 1.4)" : "scale(1.0, 1.0)",
+                animation: (isSelected && modelIsBusy) ? `pulse-animation ${0.5 + Math.random() * 3}s infinite alternate` : "none"
+            }
+            }
+        ></div >)
+    }
+
     const children = <div style={{ display: "flex", flexDirection: "column" }} >
         {[...pitchRange.reverse(), "set_start"].map((pitch) =>
             <div key={pitch} style={{ display: "flex", flexDirection: "row" }} >
                 {timeRange.map((time) => {
                     return (pitch !== "set_start" ?
-                        <div key={pitch * nTimeSteps + time}
-                            onMouseDown={() => {
-                                if (editMode == "draw" || editMode == "erase") {
-                                    const newRoll = [...roll];
-                                    newRoll[pitch * nTimeSteps + time] = editMode == "draw" ? 1 : 0;
-                                    setRoll(newRoll);
-                                }
-                            }
-                            }
-                            onMouseEnter={(e) => {
-                                if (editMode == "draw" || editMode == "erase") {
-                                    // if pressed, toggle
-                                    if (e.buttons == 1) {
-                                        const newRoll = [...roll];
-                                        newRoll[pitch * nTimeSteps + time] = editMode == "draw" ? 1 : 0;
-                                        setRoll(newRoll);
-                                    }
-                                }
-                            }}
-                            className="selectable"
-                            data-key={pitch * nTimeSteps + time}
-                            style={{
-                                width: 32,
-                                height: 18,
-                                margin: 0,
-                                opacity: mask[pitch * nTimeSteps + time] == 0 ? 1 : 0.1,
-                                backgroundColor: roll[pitch * nTimeSteps + time] == 0 ?
-                                    (time % 4 == 0 ? "lightgray" : "white") : "black",
-                                border: time == timeStep ? "1px solid red" : "1px solid darkgray"
-                            }}
-                        ></div>
+                        renderTile(pitch, time)
+                        // <Tile dataKey={pitch * nTimeSteps + time} key={pitch * nTimeSteps + time} isOn={roll[pitch * nTimeSteps + time] == 1} isSelected={mask[pitch * nTimeSteps + time] == 1} isAccent={time % 4 == 0} isBeingPlayed={time == timeStep} onPressTile={() => onPressTile(pitch, time)} />
+                        // <div key={pitch * nTimeSteps + time}
+                        //     data-key={pitch * nTimeSteps + time}
+                        //     className="selectable"
+                        //     onMouseDown={() => {
+                        //         onPressTile(pitch, time);
+                        //     }
+                        //     }
+                        //     onMouseEnter={(e) => {
+                        //         // if pressed, toggle
+                        //         if (e.buttons == 1) {
+                        //             onPressTile(pitch, time);
+                        //         }
+
+                        //     }}
+
+                        //     style={{
+                        //         width: 32,
+                        //         height: 18,
+                        //         margin: 0,
+                        //         opacity: mask[pitch * nTimeSteps + time] == 0 ? 1 : 0.1,
+                        //         backgroundColor: roll[pitch * nTimeSteps + time] == 0 ?
+                        //             (time % 4 == 0 ? "lightgray" : "white") : "black",
+                        //         border: time == timeStep ? "1px solid red" : "1px solid darkgray"
+                        //     }}
+                        // ></div>
                         :
                         <React.Fragment key={time}>
                             <div key={time} id={`set-start-${time}`}
                                 style={{
-                                    width: 32,
-                                    height: 18,
+                                    width: tileWidth,
+                                    height: tileHeight * 2,
                                     margin: 0,
-                                    border: "1px solid darkgray",
-                                    backgroundColor: "green",
+                                    border: "1px solid white",
+                                    // backgroundColor: "green",
+
+
                                 }}
                                 onClick={() => {
                                     const newRoll = _.chunk(roll, nTimeSteps).map(x => mutableRotateRight(x, nTimeSteps - time)).flat();
@@ -116,7 +166,13 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
                                 }
 
                             >
-
+                                <div style={{
+                                    backgroundColor: "black",
+                                    width: tileHeight * 0.2,
+                                    height: tileHeight * 0.2,
+                                    margin: "auto",
+                                    borderRadius: "100%",
+                                }}></div>
                             </div>
                             <Tooltip anchorId={`set-start-${time}`} place="bottom" type="dark" effect="solid" content={`set start at ${time}`}></Tooltip>
                         </React.Fragment >

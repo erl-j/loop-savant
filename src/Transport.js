@@ -2,7 +2,7 @@ import React from 'react';
 import * as Tone from 'tone';
 import { WebMidi } from 'webmidi';
 
-const MIN_NOTE = 38;
+const MIN_NOTE = 43;
 const POLYPHONY = 36;
 const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, outputRef, tempo, pitchOffset }) => {
 
