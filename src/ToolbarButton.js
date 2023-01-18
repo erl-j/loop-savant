@@ -2,7 +2,7 @@ import React from 'react'
 import { Tooltip } from 'react-tooltip'
 import 'react-tooltip/dist/react-tooltip.css';
 
-const ToolbarButton = ({ iconCharacter, text, keyboardCharacter, disabled, onActivate, isActive, hide }) => {
+const ToolbarButton = ({ icon, text, keyboardCharacter, disabled, onActivate, isActive, hide }) => {
 
     const upHandler = (key) => {
     }
@@ -38,10 +38,11 @@ const ToolbarButton = ({ iconCharacter, text, keyboardCharacter, disabled, onAct
 
     return (!hide &&
         <>
-            <button id={text} disabled={disabled} style={{ backgroundColor: disabled ? "lightgrey" : isActive ? "blue" : "white", fontSize: "2em" }}
+            <button id={text} disabled={disabled} style={{ padding: "0.5em", backgroundColor: disabled ? "lightgrey" : isActive ? "teal" : "white", fontSize: "1.5em" }}
                 onClick={onActivate}>
-                {iconCharacter}</button>
-            <Tooltip anchorId={text} content={text + " " + `(${keyboardCharacter})`} />
+                {icon}
+            </button>
+            <Tooltip place={"bottom"} anchorId={text} content={text + " " + `(${keyboardCharacter})`} />
         </>
     )
 

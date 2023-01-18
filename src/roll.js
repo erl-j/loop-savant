@@ -59,7 +59,7 @@ const Roll = ({ model }) => {
 
     const [editMode, setEditMode] = React.useState("draw");
 
-    const [variationStrength, setVariationStrength] = React.useState(0.08)
+    const [variationStrength, setVariationStrength] = React.useState(0.25)
 
     const [output, setOutput, outputRef] = useRefState("built-in")
 
@@ -87,7 +87,8 @@ const Roll = ({ model }) => {
         setModelIsBusy(true)
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
-        model.regenerate(fullRoll, fullMask, 1, temperature, activityBias, variationStrength, mode).then(infilledRoll => {
+        let nSteps = (mode == "all") ? 5 : 2
+        model.regenerate(fullRoll, fullMask, nSteps, temperature, activityBias, variationStrength, mode).then(infilledRoll => {
             infilledRoll = fullToScale(infilledRoll, SCALE)
             setRoll(infilledRoll)
             setModelIsBusy(false)
@@ -163,7 +164,7 @@ const Roll = ({ model }) => {
                     modelIsBusy={modelIsBusy}
                 ></Toolbar>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
-                    <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode} modelIsBusy={modelIsBusy}></RollView>
+                    <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode} modelIsBusy={modelIsBusy} scale={SCALE}></RollView>
                     <Transport pitchOffset={pitchOffset} outputRef={outputRef} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} ></Transport>
                 </div >
             </div >

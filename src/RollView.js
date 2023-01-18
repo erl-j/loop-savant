@@ -5,8 +5,9 @@ import "./index.css";
 import * as _ from "lodash";
 import { Tooltip } from "react-tooltip";
 import "./index.css";
+import { Scale } from "tone";
 
-const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask, editMode, setTimeStep, modelIsBusy }) => {
+const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask, editMode, setTimeStep, modelIsBusy, scale }) => {
 
     const pitchRange = Array.from(Array(nPitches).keys());
     const timeRange = Array.from(Array(nTimeSteps).keys());
@@ -78,8 +79,7 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
         let isOn = roll[pitch * nTimeSteps + time] == 1;
         let isAccent = time % 4 == 0;
         let isBeingPlayed = time == timeStep;
-
-
+        let isRoot = pitch % scale.length == 0;
 
         return (<div key={pitch * nTimeSteps + time}
             data-key={pitch * nTimeSteps + time}
@@ -101,7 +101,7 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
                 height: tileHeight,
                 margin: 0,
                 opacity: !isOn ?
-                    (isAccent ? 0.1 : 0.05) : 1.0,
+                    (isAccent || isRoot ? 0.1 : 0.05) : 1.0,
                 backgroundColor: isSelected ? "teal" : "black",
                 border: isBeingPlayed ? "1px solid gray" : "1px solid darkgray",
                 transition: "transform 0.3s ease-out",

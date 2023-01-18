@@ -69,6 +69,14 @@ class Model {
 
     // 
     async regenerate(x_in, mask_in, n_steps, temperature, activityBias, mask_rate, mode = "all") {
+
+        //for sparse mode, masking a random of active cells and then removing the most likely to be inactive works well.
+        // however, a similar approach is not good for denser mode as it leads to weird chords.
+
+        console.log("n steps", n_steps);
+
+        console.assert(mode == "all" || mode == "sparser" || mode == "denser", "mode must be one of 'all', 'sparser', 'denser'");
+
         let n_active_start = x_in.reduce((a, b) => a + b, 0);
 
         let x_ch = x_in.map((x) => [x, 1 - x]).flat();
@@ -78,6 +86,8 @@ class Model {
         let n_masked = mask_ch.reduce((a, b) => a + b, 0);
 
         for (let t = 0; t < n_steps; t++) {
+
+            console.log("step", t);
 
             let x_ch_2d = _.chunk(x_ch, 2)
 
@@ -156,7 +166,7 @@ class Model {
             }
             if (mode == "sparser") {
 
-                let n_unmask = 1
+                let n_unmask = Math.max(Math.floor(masked_indices.length * 0.5), 1);
 
                 // get probs of masked notes being on
                 let masked_probs = masked_indices.map((i) => ({ index: i, prob: y_probs[2 * i] }));
@@ -170,7 +180,7 @@ class Model {
                 unmask_indices = masked_probs.slice(0, n_unmask).map((x) => x.index);
             }
             if (mode == "denser") {
-                let n_unmask = 1
+                //let n_unmask = Math.max(Math.floor(masked_indices.length * 0.05), 1);
                 // get probs of masked notes being on
                 let masked_probs = masked_indices.map((i) => ({ index: i, prob: y_probs[2 * i + 1] }));
 
@@ -184,7 +194,8 @@ class Model {
                 console.log(masked_probs);
 
                 // indices to unmask
-                unmask_indices = masked_probs.slice(0, n_unmask).map((x) => x.index);
+                //unmask_indices = masked_probs.slice(0, n_unmask).map((x) => x.index);
+                unmask_indices = masked_indices
             }
 
             let x_2d = _.chunk(x_ch, 2);
@@ -197,7 +208,7 @@ class Model {
                     x_2d[unmask_indices[i]] = [0, 1];
                 }
                 if (mode == "denser") {
-                    x_2d[unmask_indices[i]] = [1, 0];
+                    x_2d[unmask_indices[i]] = sample_2d[unmask_indices[i]];
                 }
                 mask_ch[unmask_indices[i]] = 0;
             }
