@@ -3,14 +3,24 @@ import React from 'react';
 import * as ort from 'onnxruntime-web';
 import Model from './Model.js';
 import { Bars } from "react-loader-spinner"
+import { MODEL_PARAMS } from './constants.js';
 
 function App() {
 
   const [model, setModel] = React.useState(null);
 
   React.useEffect(() => {
+    // read model from url parameter aka ?model=guillaume
+    let modelName = window.location.search.split("=")[1];
+
+    console.log("modelName", modelName);
+
+    if (!modelName) {
+      modelName = "guillaume";
+    }
+
     (async () => {
-      let model = new Model();
+      let model = new Model(MODEL_PARAMS[modelName]);
       await model.initialize();
       setModel(model);
     })();
@@ -24,7 +34,7 @@ function App() {
     return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
       <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
         <div><h1>Welcome to Loop Savant!</h1></div>
-        <img src="logo.jpg" style={{ width: "auto", height: 300 }}></img>
+        <img src={process.env.PUBLIC_URL + "/logo.jpg"} style={{ width: "auto", height: 300 }}></img>
         <div style={{ marginTop: 32 }}>
           {model ?
 

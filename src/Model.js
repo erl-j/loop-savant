@@ -1,15 +1,6 @@
-import React from 'react';
-import * as ort from 'onnxruntime-web';
 import * as _ from 'lodash';
-import WebMidi from "webmidi";
-
-// let MODEL_PATH =
-//   !process.env.NODE_ENV || process.env.NODE_ENV === "development"
-//     ? process.env.PUBLIC_URL + "/models/distilbert-base-uncased-masked-lm.onnx"
-//     : "https://cdn-lfs.huggingface.co/repos/73/2e/732ee04e620bc04681d74f44f13032805c14dff4c56cdaeca28120d3e0ed7aa6/14522ffbc84d27b8cc558f6093f4f4f41fa29fc89c54a717f542cf0c43c62eee?response-content-disposition=attachment%3B%20filename%3D%22distilbert-base-uncased-masked-lm.onnx%22";
-
-const N_PITCHES = 36;
-const N_TIMESTEPS = 32;
+import * as ort from 'onnxruntime-web';
+import { MODEL_PITCHES, MODEL_PARAMS, MODEL_TIMESTEPS } from './constants.js';
 
 
 const softmax = (x, temperature) => {
@@ -20,33 +11,33 @@ const softmax = (x, temperature) => {
 };
 
 class Model {
-    constructor() {
+    constructor(model_params) {
+        this.model_path = model_params.path
+        this.defaults = model_params.defaults;
     }
 
     async initialize() {
         ort.env.wasm.proxy = true;
-        this.session = await ort.InferenceSession.create('./model.onnx',
+        this.session = await ort.InferenceSession.create(process.env.PUBLIC_URL + "/" + this.model_path,
             { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }
         );
         // this.test_run();
     };
 
     async test_run() {
-        let x_in = new Array(N_PITCHES * N_TIMESTEPS * 2).fill(0);
-        let mask_in = new Array(N_PITCHES * N_TIMESTEPS).fill(1);
+        let x_in = new Array(MODEL_PITCHES * MODEL_TIMESTEPS * 2).fill(0);
+        let mask_in = new Array(MODEL_PITCHES * MODEL_TIMESTEPS).fill(1);
 
         let y, y_probs = await this.forward(x_in, mask_in);
-        console.log(y_probs);
 
-        x_in = new Array(N_PITCHES * N_TIMESTEPS * 2).fill(0);
+        x_in = new Array(MODEL_PITCHES * MODEL_TIMESTEPS * 2).fill(0);
         x_in[0] = 1;
 
-        mask_in = new Array(N_PITCHES * N_TIMESTEPS).fill(1);
+        mask_in = new Array(MODEL_PITCHES * MODEL_TIMESTEPS).fill(1);
         mask_in[0] = 0;
 
         let y2, y_probs2 = await this.forward(x_in, mask_in);
 
-        console.log(y_probs2);
     }
 
     async forward(x_in, mask_in) {
@@ -55,14 +46,13 @@ class Model {
         let mask = new Float32Array(mask_in);
         // generate model input
         const feeds = {
-            x: new ort.Tensor("float32", x, [1, N_PITCHES, N_TIMESTEPS, 2]),
-            mask: new ort.Tensor("float32", mask, [1, N_PITCHES, N_TIMESTEPS, 1]),
+            x: new ort.Tensor("float32", x, [1, MODEL_PITCHES, MODEL_TIMESTEPS, 2]),
+            mask: new ort.Tensor("float32", mask, [1, MODEL_PITCHES, MODEL_TIMESTEPS, 1]),
         };
         const start = new Date().getTime();
         let results = await this.session.run(feeds);
         const end = new Date().getTime();
         console.log(`time: ${end - start} ms`);
-        console.log(results);
         return [results.y.data, results.y_probs.data];
     }
 
@@ -73,7 +63,6 @@ class Model {
         //for sparse mode, masking a random of active cells and then removing the most likely to be inactive works well.
         // however, a similar approach is not good for denser mode as it leads to weird chords.
 
-        console.log("n steps", n_steps);
 
         console.assert(mode == "all" || mode == "sparser" || mode == "denser", "mode must be one of 'all', 'sparser', 'denser'");
 
@@ -87,19 +76,18 @@ class Model {
 
         for (let t = 0; t < n_steps; t++) {
 
-            console.log("step", t);
 
             let x_ch_2d = _.chunk(x_ch, 2)
 
 
             if (mode == "all") {
-                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_ch[i] == 1) ? 1 : 0);
+                mask_ch = new Array(MODEL_PITCHES * MODEL_TIMESTEPS).fill(0).map((x, i) => (mask_ch[i] == 1) ? 1 : 0);
             }
             if (mode == "sparser") {
-                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_ch[i] == 1 && x_ch_2d[i][0] == 1) ? 1 : 0);
+                mask_ch = new Array(MODEL_PITCHES * MODEL_TIMESTEPS).fill(0).map((x, i) => (mask_ch[i] == 1 && x_ch_2d[i][0] == 1) ? 1 : 0);
             }
             if (mode == "denser") {
-                mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0).map((x, i) => (mask_ch[i] == 1 && x_ch_2d[i][1] == 1) ? 1 : 0);
+                mask_ch = new Array(MODEL_PITCHES * MODEL_TIMESTEPS).fill(0).map((x, i) => (mask_ch[i] == 1 && x_ch_2d[i][1] == 1) ? 1 : 0);
             }
 
             let in_masked_indices = []
@@ -113,9 +101,8 @@ class Model {
 
             in_masked_indices = in_masked_indices.slice(0, Math.max(Math.floor(in_masked_indices.length * mask_rate), 1));
 
-            console.log(in_masked_indices);
 
-            mask_ch = new Array(N_PITCHES * N_TIMESTEPS).fill(0);
+            mask_ch = new Array(MODEL_PITCHES * MODEL_TIMESTEPS).fill(0);
             for (let i = 0; i < in_masked_indices.length; i++) {
                 mask_ch[in_masked_indices[i]] = 1;
             }
@@ -136,7 +123,7 @@ class Model {
             //     console.assert(Math.abs(y_probs_sums[i] - 1) < 1e-5, `y_probs_sums[${i}] = ${y_probs_sums[i]}`);
             // }
 
-            n_masked = Math.floor(this.schedule((t + 1) / n_steps) * N_PITCHES * N_TIMESTEPS);
+            n_masked = Math.floor(this.schedule((t + 1) / n_steps) * MODEL_PITCHES * MODEL_TIMESTEPS);
 
             let sample_2d = _.chunk(y_probs, 2).map((x) => {
                 let r = Math.random();
@@ -174,13 +161,12 @@ class Model {
                 // sort by probs
                 masked_probs.sort((a, b) => a.prob - b.prob);
 
-                console.log(masked_probs);
 
                 // indices to unmask
                 unmask_indices = masked_probs.slice(0, n_unmask).map((x) => x.index);
             }
             if (mode == "denser") {
-                //let n_unmask = Math.max(Math.floor(masked_indices.length * 0.05), 1);
+                // let n_unmask = Math.max(Math.floor(masked_indices.length * 0.05), 1);
                 // get probs of masked notes being on
                 let masked_probs = masked_indices.map((i) => ({ index: i, prob: y_probs[2 * i + 1] }));
 
@@ -191,7 +177,6 @@ class Model {
                 // reverse order
                 masked_probs.reverse();
 
-                console.log(masked_probs);
 
                 // indices to unmask
                 //unmask_indices = masked_probs.slice(0, n_unmask).map((x) => x.index);
@@ -232,7 +217,7 @@ class Model {
         let mask_ch = mask_in;
 
         let n_masked = mask_ch.reduce((a, b) => a + b, 0);
-        let mask_ratio = n_masked / (N_PITCHES * N_TIMESTEPS);
+        let mask_ratio = n_masked / (MODEL_PITCHES * MODEL_TIMESTEPS);
 
         let start_step = Math.floor(this.inverse_schedule(mask_ratio) * n_steps);
 
@@ -251,7 +236,7 @@ class Model {
             //     console.assert(Math.abs(y_probs_sums[i] - 1) < 1e-5, `y_probs_sums[${i}] = ${y_probs_sums[i]}`);
             // }
 
-            n_masked = Math.floor(this.schedule((t + 1) / n_steps) * N_PITCHES * N_TIMESTEPS);
+            n_masked = Math.floor(this.schedule((t + 1) / n_steps) * MODEL_PITCHES * MODEL_TIMESTEPS);
 
             let sample_2d = _.chunk(y_probs, 2).map((x) => {
                 let r = Math.random();
