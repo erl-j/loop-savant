@@ -3,7 +3,7 @@ export const MODEL_TIMESTEPS = 32;
 
 export const MODEL_PARAMS = {
     "guillaume": {
-        "path": "./guillaume.onnx", "defaults": {
+        "path": "./guillaume2.onnx", "defaults": {
             "nSteps": 30, "temperature": 0.85, "activityBias": 0.65
         },
     },
