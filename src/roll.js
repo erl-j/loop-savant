@@ -77,7 +77,6 @@ const Roll = ({ model }) => {
     }
     )
     const runGeneration = () => {
-
         setModelIsBusy(true)
         console.log("running generation")
         let fullMask = scaleToFull(mask, SCALE)
@@ -91,6 +90,7 @@ const Roll = ({ model }) => {
     }
 
     const runVariation = (mode) => {
+
         setModelIsBusy(true)
         let fullMask = scaleToFull(mask, SCALE)
         let fullRoll = scaleToFull(roll, SCALE)
@@ -106,7 +106,6 @@ const Roll = ({ model }) => {
         setMask(new Array(nPitches * MODEL_TIMESTEPS).fill(1))
         setEditMode("select")
     }
-
 
     const invertSelection = () => {
         let currentMask = [...mask]
@@ -144,18 +143,7 @@ const Roll = ({ model }) => {
         setRoll(newRoll)
     }
 
-
     let n_masked = mask.reduce((a, b) => a + b, 0)
-
-
-    // setOutput,
-    // tempo,
-    // setTempo,
-    // pitchOffset,
-    // setPitchOffset,
-    // synthParameters,
-    // setSynthParameters
-
     return (
         <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 16 }}>
             <div style={{ display: "flex", flexDirection: "column" }}>
@@ -182,15 +170,6 @@ const Roll = ({ model }) => {
                         synthParameters={synthParameters}
                         setSynthParameters={setSynthParameters}
                     ></Toolbar>
-                    {/* <Sidepanel
-                        setOutput={setOutput}
-                        tempo={tempo}
-                        setTempo={setTempo}
-                        pitchOffset={pitchOffset}
-                        setPitchOffset={setPitchOffset}
-                        synthParameters={synthParameters}
-                        setSynthParameters={setSynthParameters}></Sidepanel> */}
-
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
                     <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode} modelIsBusy={modelIsBusy} scale={SCALE}></RollView>

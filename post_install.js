@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const https = require('https');
 
 // copy onnxruntime-web WebAssembly files to {workspace}/public/ folder
 const srcFolder = path.join(__dirname, 'node_modules', 'onnxruntime-web', 'dist');

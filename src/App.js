@@ -1,8 +1,8 @@
-import Roll from './Roll.js';
 import React from 'react';
-import * as ort from 'onnxruntime-web';
+import { Bars } from "react-loader-spinner";
+import CLModel from './CLModel.js';
 import Model from './Model.js';
-import { Bars } from "react-loader-spinner"
+import Roll from './Roll.js';
 import { MODEL_PARAMS } from './constants.js';
 
 function App() {
@@ -10,22 +10,15 @@ function App() {
   const [model, setModel] = React.useState(null);
 
   React.useEffect(() => {
-    // read model from url parameter aka ?model=guillaume
-    let modelName = window.location.search.split("=")[1];
-
-    console.log("modelName", modelName);
-
-    if (!modelName) {
-      modelName = "guillaume";
-    }
-
-    (async () => {
-      let model = new Model(MODEL_PARAMS[modelName]);
+    const getModel = async (modelName) => {
+      const ModelClass = modelName === "clm0" ? CLModel : Model;
+      const model = new ModelClass(MODEL_PARAMS[modelName]);
       await model.initialize();
       setModel(model);
-    })();
+    };
+    const modelName = new URLSearchParams(window.location.search).get("model") || "clm0";
+    getModel(modelName);
   }, []);
-
 
   const [isOn, setIsOn] = React.useState(false);
 
@@ -57,7 +50,6 @@ function App() {
       </div >
     </div >
   }
-
 
   return (
     <div className="App" style={{ width: "100%" }}>

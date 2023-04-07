@@ -1,14 +1,7 @@
 import * as _ from 'lodash';
 import * as ort from 'onnxruntime-web';
 import { MODEL_PITCHES, MODEL_PARAMS, MODEL_TIMESTEPS } from './constants.js';
-
-
-const softmax = (x, temperature) => {
-    x = x.map((a) => a / temperature);
-    let e_x = x.map((a) => Math.exp(a));
-    let sum = e_x.reduce((a, b) => a + b);
-    return e_x.map((a) => a / sum);
-};
+import { softmax } from './utils.js';
 
 class Model {
     constructor(model_params) {
