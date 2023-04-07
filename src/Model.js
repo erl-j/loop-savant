@@ -13,6 +13,7 @@ class Model {
         ort.env.wasm.proxy = true;
         this.session = await ort.InferenceSession.create(process.env.PUBLIC_URL + "/" + this.model_path,
             { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }
+            // { executionProviders: ['webgl'], graphOptimizationLevel: 'all' }
         );
         // this.test_run();
     };
