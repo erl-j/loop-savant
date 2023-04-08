@@ -18,16 +18,17 @@ class CLModel {
     async initialize() {
         ort.env.wasm.proxy = true;
         this.session = await ort.InferenceSession.create(process.env.PUBLIC_URL + "/" + this.model_path,
-            { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }
-            // { executionProviders: ['webgl'], enableProfiling: true }
+            // { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }
+            { executionProviders: ['webgl'], enableProfiling: true }
         );
-        this.test_run(20);
+        this.test_run(2);
     };
 
     async forward(superposition) {
-        // assert(pitch.length == 1 * CLM_DOCUMENT_LENGTH * (CLM_N_PITCHES + 1));
-        // assert(onset.length == 1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1));
-        // assert(duration.length == 1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1));
+        // console.log("superposition", superposition);
+        // console.assert(superposition.pitch.length == 1 * CLM_DOCUMENT_LENGTH * (CLM_N_PITCHES + 1));
+        // console.assert(superposition.onset.length == 1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1));
+        // console.assert(superposition.duration.length == 1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1));
 
         // generate model input
         const feeds = {
@@ -41,15 +42,17 @@ class CLModel {
 
     async test_run(n_iterations = 1) {
         // test forward pass
-        let pitch = new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_PITCHES + 1)).fill(1);
-        let onset = new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1);
-        let duration = new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1);
 
         let execution_times = [];
         for (let i = 0; i < n_iterations; i++) {
+            let pitch = new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_PITCHES + 1)).fill(1);
+            let onset = new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1);
+            let duration = new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1);
+            let superposition = { pitch: pitch, onset: onset, duration: duration };
+
             console.log(`Iteration ${i + 1} of ${n_iterations}`);
             const start = new Date().getTime();
-            let y = await this.forward(pitch, onset, duration);
+            let y = await this.forward(superposition);
             const end = new Date().getTime();
             console.log(`Execution time: ${end - start} ms`);
             execution_times.push(end - start);
@@ -93,7 +96,8 @@ class CLModel {
 
     async sample(superposition, temperature, nStepsToSample) {
         // iterate over document and sample pitch, onset, duration up to nStepsToSample
-        for (let i = 0; i < CLM_DOCUMENT_LENGTH; i++) {
+        for (let i = 0; i < nStepsToSample; i++) {
+            console.log(`Sampling step ${i + 1} of ${nStepsToSample}...`)
             // iterate over pitch, onset, duration
             for (let j = 0; j < 3; j++) {
                 let logits = await this.forward(superposition);
@@ -111,34 +115,34 @@ class CLModel {
         }
     }
 
-    async prepare_superposition(pitches_allowed = "*", onsets_allowed = "*", durations_allowed = "*", n_active_notes = ">0") {
+    prepare_superposition(pitches_allowed = "*", onsets_allowed = "*", durations_allowed = "*", n_active_notes = ">0") {
 
         if (pitches_allowed == "*") {
             pitches_allowed = _.range(CLM_N_PITCHES);
         }
-        if (onsets_allow == "*") {
+        if (onsets_allowed == "*") {
             onsets_allowed = _.range(CLM_N_DURATIONS);
         }
-        if (durations_allow == "*") {
+        if (durations_allowed == "*") {
             durations_allowed = _.range(CLM_N_DURATIONS);
         }
-        let step_pitches = new Float32Array(CLM_DOCUMENT_LENGTH * (CLM_N_PITCHES + 1)).fill(0);
-        for (let i = 0; i < pitches.length; i++) {
-            step_pitches[i * (CLM_N_PITCHES + 1) + pitches[i] + 1] = 1;
+        let step_pitches = Array((CLM_N_PITCHES + 1)).fill(0);
+        for (let i = 0; i < pitches_allowed.length; i++) {
+            step_pitches[pitches_allowed[i] + 1] = 1;
         }
-        let step_durations = new Float32Array(CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(0);
-        for (let i = 0; i < durations.length; i++) {
-            step_durations[i * (CLM_N_DURATIONS + 1) + durations[i] + 1] = 1;
+        let step_onsets = Array((CLM_N_DURATIONS + 1)).fill(0);
+        for (let i = 0; i < onsets_allowed.length; i++) {
+            step_onsets[onsets_allowed[i] + 1] = 1;
         }
-        let step_onsets = new Float32Array(CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(0);
-        for (let i = 0; i < onsets.length; i++) {
-            step_onsets[i * (CLM_N_DURATIONS + 1) + onsets[i] + 1] = 1;
+        let step_durations = Array((CLM_N_DURATIONS + 1)).fill(0);
+        for (let i = 0; i < durations_allowed.length; i++) {
+            step_durations[durations_allowed[i] + 1] = 1;
         }
 
         // repeat CLM_DOCUMENT_LENGTH times
-        let pitches = step_pitches.repeat(CLM_DOCUMENT_LENGTH);
-        let durations = step_durations.repeat(CLM_DOCUMENT_LENGTH);
-        let onsets = step_onsets.repeat(CLM_DOCUMENT_LENGTH);
+        let pitches = Array(CLM_DOCUMENT_LENGTH).fill(step_pitches).flat();
+        let onsets = Array(CLM_DOCUMENT_LENGTH).fill(step_onsets).flat();
+        let durations = Array(CLM_DOCUMENT_LENGTH).fill(step_durations).flat();
 
         // if n_active_notes is a number, set that number of notes to be active
         // a note is active if its pitch, onset and duration values are all defined, i.e. if their 0th index is 0.
@@ -148,52 +152,78 @@ class CLModel {
             for (let i = 0; i < CLM_DOCUMENT_LENGTH; i++) {
                 if (i <= n_active_notes) {
                     pitches[i * (CLM_N_PITCHES + 1)] = 0;
-                    durations[i * (CLM_N_DURATIONS + 1)] = 0;
                     onsets[i * (CLM_N_DURATIONS + 1)] = 0;
+                    durations[i * (CLM_N_DURATIONS + 1)] = 0;
                 } else {
                     if (i > n_active_notes) {
                         pitches.fill(0, i * (CLM_N_PITCHES + 1), (i + 1) * (CLM_N_PITCHES + 1));
                         pitches[i * (CLM_N_PITCHES + 1)] = 1;
-                        durations.fill(0, i * (CLM_N_DURATIONS + 1), (i + 1) * (CLM_N_DURATIONS + 1));
-                        durations[i * (CLM_N_DURATIONS + 1)] = 1;
                         onsets.fill(0, i * (CLM_N_DURATIONS + 1), (i + 1) * (CLM_N_DURATIONS + 1));
                         onsets[i * (CLM_N_DURATIONS + 1)] = 1;
+                        durations.fill(0, i * (CLM_N_DURATIONS + 1), (i + 1) * (CLM_N_DURATIONS + 1));
+                        durations[i * (CLM_N_DURATIONS + 1)] = 1;
                     }
                 }
             }
         }
-        return {
+        let superposition = {
             pitch: pitches,
             onset: onsets,
             duration: durations
         }
+        return superposition;
     }
 
-    async superposition_to_note_sequence(superposition) {
-        let pitches_idx = _.chunk(superposition.pitch, CLM_N_PITCHES + 1);
-        let onsetes_idx = _.chunk(superposition.onset, CLM_N_DURATIONS + 1);
-        let durationes_idx = _.chunk(superposition.duration, CLM_N_DURATIONS + 1);
+    superposition_to_note_sequence(superposition) {
+        console.log(superposition)
+        let note_sequence = [];
+        for (let i = 0; i < CLM_DOCUMENT_LENGTH; i++) {
+            let pitch = _.indexOf(superposition.pitch.slice(i * (CLM_N_PITCHES + 1), (i + 1) * (CLM_N_PITCHES + 1)), 1) - 1;
+            let onset = _.indexOf(superposition.onset.slice(i * (CLM_N_DURATIONS + 1), (i + 1) * (CLM_N_DURATIONS + 1)), 1) - 1;
+            let duration = _.indexOf(superposition.duration.slice(i * (CLM_N_DURATIONS + 1), (i + 1) * (CLM_N_DURATIONS + 1)), 1) - 1;
+            if (pitch != -1 && onset != -1 && duration != -1) {
+                let note = {
+                    pitch: pitch,
+                    onset: onset,
+                    duration: duration
+                }
+                note_sequence.push(note);
+            }
+        }
+        return note_sequence;
+    }
 
-
+    async note_sequence_to_flat_roll(note_sequence) {
+        let flat_roll = new Float32Array(MODEL_PITCHES * MODEL_TIMESTEPS).fill(0);
+        for (let i = 0; i < note_sequence.length; i++) {
+            let note = note_sequence[i];
+            let pitch = note.pitch;
+            let onset = note.onset;
+            let duration = note.duration;
+            flat_roll.fill(1, pitch * MODEL_TIMESTEPS + onset, pitch * MODEL_TIMESTEPS + onset + duration);
+        }
+        return flat_roll;
+    }
 
     async generate(x_in, mask_in, n_steps, temperature, activityBias) {
-            superposition = {
-                pitch: new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_PITCHES + 1)).fill(1),
-                onset: new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1),
-                duration: new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1),
-            }
-            // make a range of 0 to 8
-            let every_other = _.range(0, CLM_N_DURATIONS, 2);
-
-            let n_notes = 10;
-
-            superposition = this.prepare_superposition(MAJOR_SCALE, every_other, every_other, n_notes);
-            superposition = this.sample(superposition, temperature, n_notes);
-
-            // convert to note sequence
-
-
+        let superposition = {
+            pitch: new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_PITCHES + 1)).fill(1),
+            onset: new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1),
+            duration: new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1),
         }
-    }
+        // make a range of 0 to 8
+        let every_other = _.range(0, CLM_N_DURATIONS, 2);
 
-        export default CLModel;
+        let n_notes = 10;
+
+        superposition = this.prepare_superposition("*", "*", "*", n_notes);
+        superposition = await this.sample(superposition, temperature, n_notes);
+
+        // convert to note sequence
+        let note_sequence = this.superposition_to_note_sequence(superposition);
+        let flat_roll = this.note_sequence_to_flat_roll(note_sequence);
+        return flat_roll;
+    }
+}
+
+export default CLModel;
