@@ -11,12 +11,14 @@ function App() {
 
   React.useEffect(() => {
     const getModel = async (modelName) => {
-      const ModelClass = modelName === "clm0" ? CLModel : Model;
+      //
+      let isCLM = modelName === "clm" || modelName === "clm_quick";
+      const ModelClass = isCLM ? CLModel : Model;
       const model = new ModelClass(MODEL_PARAMS[modelName]);
       await model.initialize();
       setModel(model);
     };
-    const modelName = new URLSearchParams(window.location.search).get("model") || "clm0";
+    const modelName = new URLSearchParams(window.location.search).get("model") || "clm_quick";
     getModel(modelName);
   }, []);
 

@@ -197,8 +197,8 @@ class CLModel {
         for (let i = 0; i < note_sequence.length; i++) {
             let note = note_sequence[i];
             let pitch = note.pitch;
-            let onset = note.onset;
-            let duration = note.duration;
+            let onset = note.onset // 2;
+            let duration = note.duration // 2;
             flat_roll.fill(1, pitch * MODEL_TIMESTEPS + onset, pitch * MODEL_TIMESTEPS + onset + duration);
         }
         return flat_roll;
@@ -213,7 +213,7 @@ class CLModel {
         // make a range of 0 to 8
         let every_other = _.range(0, CLM_N_DURATIONS-2, 2);
 
-        let n_notes = 40;
+        let n_notes = 64;
 
         superposition = this.prepare_superposition(MAJOR_SCALE, every_other, every_other, n_notes);
         superposition = await this.sample(superposition, temperature, n_notes);

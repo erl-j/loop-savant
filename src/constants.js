@@ -22,4 +22,10 @@ export const MODEL_PARAMS = {
             "nSteps": 20, "temperature": 0.85, "activityBias": 0.85
         }
     }
+    ,
+    "clm_quick": {
+        "path": "./clm_quick.onnx", "defaults": {
+            "nSteps": 20, "temperature": 0.85, "activityBias": 0.85
+        }
+    }
 }
