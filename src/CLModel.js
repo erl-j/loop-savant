@@ -7,7 +7,7 @@ const CLM_DOCUMENT_LENGTH = 128;
 const CLM_N_DURATIONS = 64;
 const CLM_N_PITCHES = 36;
 const ATTRIBUTES = ["pitch", "onset", "duration"];
-const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11];
+const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24, 26, 28, 29, 31, 33, 35];
 
 class CLModel {
     constructor(model_params) {
@@ -211,11 +211,11 @@ class CLModel {
             duration: new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1),
         }
         // make a range of 0 to 8
-        let every_other = _.range(0, CLM_N_DURATIONS, 2);
+        let every_other = _.range(0, CLM_N_DURATIONS-2, 2);
 
-        let n_notes = 10;
+        let n_notes = 40;
 
-        superposition = this.prepare_superposition("*", "*", "*", n_notes);
+        superposition = this.prepare_superposition(MAJOR_SCALE, every_other, every_other, n_notes);
         superposition = await this.sample(superposition, temperature, n_notes);
 
         // convert to note sequence

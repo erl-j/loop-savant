@@ -19,7 +19,7 @@ export const MODEL_PARAMS = {
     },
     "clm0": {
         "path": "./clm0.onnx", "defaults": {
-            "temperature": 0.85
+            "nSteps": 20, "temperature": 0.85, "activityBias": 0.85
         }
     }
 }
