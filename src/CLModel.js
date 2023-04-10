@@ -94,17 +94,29 @@ class CLModel {
     async regenerate(x_in, mask_in, n_steps, temperature, activityBias, mask_rate, mode = "all") {
     }
 
-    async sample(superposition, temperature, nStepsToSample) {
+    async sample(superposition, temperature, nStepsToSample, randomOrder) {
+        let samplingOrder = _.range(nStepsToSample);
+        if (randomOrder) {
+            samplingOrder = _.shuffle(samplingOrder);
+        }
         // iterate over document and sample pitch, onset, duration up to nStepsToSample
-        for (let i = 0; i < nStepsToSample; i++) {
+        for (let i of samplingOrder) {
             // iterate over pitch, onset, duration
             for (let j = 0; j < 3; j++) {
+                let attribute = ATTRIBUTES[j];
+                let n_values = null;
+                if( attribute == "pitch"){
+                    n_values = CLM_N_PITCHES ;
+                }
+                else{
+                    n_values = CLM_N_DURATIONS;
+                }
                 let logits = await this.forward(superposition);
-                let logits_flat = logits[ATTRIBUTES[j]].slice(i * (CLM_N_PITCHES + 1), (i + 1) * (CLM_N_PITCHES + 1));
+                let logits_flat = logits[ATTRIBUTES[j]].slice(i * (n_values+ 1), (i + 1) * (n_values+ 1));
                 let probs = softmax(logits_flat, temperature);
                 let sample = sample_categorical(probs);
-                superposition[ATTRIBUTES[j]].fill(0, i * (CLM_N_PITCHES + 1), (i + 1) * (CLM_N_PITCHES + 1));
-                superposition[ATTRIBUTES[j]][i * (CLM_N_PITCHES + 1) + sample] = 1;
+                superposition[ATTRIBUTES[j]].fill(0, i * (n_values+ 1), (i + 1) * (n_values+ 1));
+                superposition[ATTRIBUTES[j]][i * (n_values+ 1) + sample] = 1;
             }
         }
         return {
@@ -197,8 +209,9 @@ class CLModel {
         for (let i = 0; i < note_sequence.length; i++) {
             let note = note_sequence[i];
             let pitch = note.pitch;
-            let onset = note.onset // 2;
-            let duration = note.duration // 2;
+            let onset = note.onset / 2;
+            let duration = note.duration / 2;
+            console.log(pitch, onset, duration);
             flat_roll.fill(1, pitch * MODEL_TIMESTEPS + onset, pitch * MODEL_TIMESTEPS + onset + duration);
         }
         return flat_roll;
@@ -210,18 +223,16 @@ class CLModel {
             onset: new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1),
             duration: new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1),
         }
-        // make a range of 0 to 8
-        let every_other = _.range(0, CLM_N_DURATIONS-2, 2);
 
         let n_notes = 64;
 
-        superposition = this.prepare_superposition(MAJOR_SCALE, every_other, every_other, n_notes);
-        superposition = await this.sample(superposition, temperature, n_notes);
+        superposition = this.prepare_superposition(MAJOR_SCALE, _.range(0, CLM_N_DURATIONS, 2), _.range(2, CLM_N_DURATIONS, 2), n_notes);
+        superposition = await this.sample(superposition, temperature, n_notes,true);
 
         // convert to note sequence
         let note_sequence = this.superposition_to_note_sequence(superposition);
         let flat_roll = this.note_sequence_to_flat_roll(note_sequence);
-        console.log(flat_roll);
+        console.log(note_sequence);
         return flat_roll;
     }
 }
