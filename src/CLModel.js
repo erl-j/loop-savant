@@ -8,7 +8,7 @@ const CLM_N_DURATIONS = 64;
 const CLM_N_PITCHES = 36;
 const ATTRIBUTES = ["pitch", "onset", "duration"];
 const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24, 26, 28, 29, 31, 33, 35];
-
+const PENTATONIC_SCALE = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24, 26, 28, 31, 33];
 class CLModel {
     constructor(model_params) {
         this.model_path = model_params.path
@@ -21,7 +21,7 @@ class CLModel {
             { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }
             // { executionProviders: ['webgl'], enableProfiling: true }
         );
-        this.test_run(2);
+        this.test_run(10);
     };
 
     async forward(superposition) {
@@ -224,9 +224,9 @@ class CLModel {
             duration: new Float32Array(1 * CLM_DOCUMENT_LENGTH * (CLM_N_DURATIONS + 1)).fill(1),
         }
 
-        let n_notes = 64;
+        let n_notes = 32;
 
-        superposition = this.prepare_superposition(MAJOR_SCALE, _.range(0, CLM_N_DURATIONS, 2), _.range(2, CLM_N_DURATIONS, 2), n_notes);
+        superposition = this.prepare_superposition(PENTATONIC_SCALE, _.range(0, CLM_N_DURATIONS, 2), _.range(2, CLM_N_DURATIONS, 2), n_notes);
         superposition = await this.sample(superposition, temperature, n_notes,true);
 
         // convert to note sequence
