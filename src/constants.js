@@ -1,5 +1,6 @@
 export const MODEL_PITCHES = 36;
 export const MODEL_TIMESTEPS = 32;
+export const SCALE = [0, 2, 4, 5, 7, 9, 11]
 
 export const MODEL_PARAMS = {
     "guillaume": {

@@ -1,45 +1,15 @@
 import * as _ from "lodash";
 import React from "react";
 import {
-    MODEL_PITCHES, MODEL_TIMESTEPS
+    MODEL_PITCHES, MODEL_TIMESTEPS, SCALE
 } from "./constants";
 import RollView from "./RollView";
 import Toolbar from "./Toolbar";
 import Transport from "./Transport";
 import useRefState from "./useRefState";
 import Sidepanel from "./Sidepanel";
+import {scaleToFull, fullToScale} from "./utils";
 
-const fullToScale = (roll, scale) => {
-    let out_roll_2d = []
-    for (let octave = 0; octave < (1 + Math.floor(MODEL_PITCHES / 12)); octave++) {
-        for (let i = 0; i < scale.length; i++) {
-            let idx = scale[i] + octave * 12
-            if (idx >= MODEL_PITCHES) {
-                break
-            }
-            else {
-                out_roll_2d.push(roll.slice(idx * MODEL_TIMESTEPS, (idx + 1) * MODEL_TIMESTEPS))
-            }
-        }
-    }
-    return out_roll_2d.flat()
-}
-
-const scaleToFull = (roll, scale) => {
-    let out_roll_2d = []
-    let roll_2d = _.chunk(roll, MODEL_TIMESTEPS)
-    for (let pitch = 0; pitch < MODEL_PITCHES; pitch++) {
-        if (scale.includes(pitch % 12)) {
-            out_roll_2d.push(roll_2d.shift())
-        }
-        else {
-            out_roll_2d.push(new Array(MODEL_TIMESTEPS).fill(0))
-        }
-    }
-    return out_roll_2d.flat()
-}
-
-const SCALE = [0, 2, 4, 5, 7, 9, 11]
 //const SCALE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 console.assert(MODEL_PITCHES % 12 == 0)
@@ -79,10 +49,10 @@ const Roll = ({ model }) => {
     const runGeneration = () => {
         setModelIsBusy(true)
         console.log("running generation")
-        let fullMask = scaleToFull(mask, SCALE)
-        let fullRoll = scaleToFull(roll, SCALE)
+        let fullMask = scaleToFull(mask, SCALE, MODEL_PITCHES, MODEL_TIMESTEPS)
+        let fullRoll = scaleToFull(roll, SCALE, MODEL_PITCHES, MODEL_TIMESTEPS)
         model.generate(fullRoll, fullMask, nSteps, temperature, activityBias).then(infilledRoll => {
-            infilledRoll = fullToScale(infilledRoll, SCALE)
+            infilledRoll = fullToScale(infilledRoll, SCALE, MODEL_PITCHES, MODEL_TIMESTEPS)
             setRoll(infilledRoll)
             setModelIsBusy(false)
         }
@@ -92,11 +62,11 @@ const Roll = ({ model }) => {
     const runVariation = (mode) => {
 
         setModelIsBusy(true)
-        let fullMask = scaleToFull(mask, SCALE)
-        let fullRoll = scaleToFull(roll, SCALE)
+        let fullMask = scaleToFull(mask, SCALE, MODEL_PITCHES, MODEL_TIMESTEPS)
+        let fullRoll = scaleToFull(roll, SCALE, MODEL_PITCHES, MODEL_TIMESTEPS)
         let nSteps = (mode == "all") ? 5 : 2
         model.regenerate(fullRoll, fullMask, nSteps, temperature, activityBias, variationStrength, mode).then(infilledRoll => {
-            infilledRoll = fullToScale(infilledRoll, SCALE)
+            infilledRoll = fullToScale(infilledRoll, SCALE, MODEL_PITCHES, MODEL_TIMESTEPS)
             setRoll(infilledRoll)
             setModelIsBusy(false)
         })
