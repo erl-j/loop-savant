@@ -193,6 +193,29 @@ class CLModel {
         return a;
     }
 
+    note_to_superposition(note) {
+        console.log(note)
+        let superposition = {
+            pitch: Array((CLM_N_PITCHES + 1)).fill(0),
+            onset: Array((CLM_N_DURATIONS + 1)).fill(0),
+            duration: Array((CLM_N_DURATIONS + 1)).fill(0)
+        }
+        superposition.pitch[note.pitch + 1] = 1;
+        superposition.onset[note.onset + 1] = 1;
+        superposition.duration[note.duration + 1] = 1;
+        return superposition;
+    }
+
+    note_sequence_to_superposition(notes_sequence) {
+        let superposition = this.note_to_superposition(notes_sequence[0]);
+        for (let i = 1; i < notes_sequence.length; i++) {
+            superposition = { pitch: superposition.pitch.concat(this.note_to_superposition(notes_sequence[i]).pitch),
+                                onset: superposition.onset.concat(this.note_to_superposition(notes_sequence[i]).onset),
+                                duration: superposition.duration.concat(this.note_to_superposition(notes_sequence[i]).duration)
+                            }
+        }
+        return superposition;
+    }
 
     superposition_to_note_sequence(superposition) {
         let note_sequence = [];
@@ -284,6 +307,8 @@ class CLModel {
             return rectangle;
         });
 
+        console.log("maskRectangles", maskRectangles);
+
         maskRectangles = maskRectangles.map(rectangle => ({...rectangle, startPitch: fullScale[rectangle.startRow], endPitch: fullScale[rectangle.endRow], startTimestep: rectangle.startCol, endTimestep: rectangle.endCol}));
 
         let n_notes = 32;
@@ -301,6 +326,7 @@ class CLModel {
                 onset: rectangleSuperposition.onset.slice(0, rectangle.notesAllocated * (CLM_N_DURATIONS + 1)),
                 duration: rectangleSuperposition.duration.slice(0, rectangle.notesAllocated * (CLM_N_DURATIONS + 1)),
             }
+            rectangleSuperpositions.push(rectangleSuperposition);
         }
         // concatenate superpositions
         let maskSuperposition = {
@@ -309,13 +335,21 @@ class CLModel {
             duration: rectangleSuperpositions.map(superposition => superposition.duration).flat(),
         }
 
-        let existingNotesSuperposition = this.note_sequence_to_superposition(existingNotes);
+        let combinedSuperposition;
 
-        // concatenate maskSuperposition and existingNotesSuperposition
-        let combinedSuperposition = {
-            pitch: [...maskSuperposition.pitch, ...existingNotesSuperposition.pitch],
-            onset: [...maskSuperposition.onset, ...existingNotesSuperposition.onset],
-            duration: [...maskSuperposition.duration, ...existingNotesSuperposition.duration],
+        if (existingNotes.length > 0) {
+            
+            let existingNotesSuperposition = this.note_sequence_to_superposition(existingNotes);
+
+            // concatenate maskSuperposition and existingNotesSuperposition
+            combinedSuperposition = {
+                pitch: [...maskSuperposition.pitch, ...existingNotesSuperposition.pitch],
+                onset: [...maskSuperposition.onset, ...existingNotesSuperposition.onset],
+                duration: [...maskSuperposition.duration, ...existingNotesSuperposition.duration],
+            }
+        }
+        else {
+            combinedSuperposition = maskSuperposition;
         }
 
         let superposition = await this.sample(combinedSuperposition, temperature, n_notes,false);
@@ -327,7 +361,6 @@ class CLModel {
         note_sequence = [...existingNotes, ...note_sequence];
 
         let flat_roll = this.note_sequence_to_flat_roll(note_sequence);
-        console.log(note_sequence);
         return flat_roll;
     }
 }
