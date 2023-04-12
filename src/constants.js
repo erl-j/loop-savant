@@ -18,7 +18,7 @@ export const MODEL_PARAMS = {
             "nSteps": 20, "temperature": 0.85, "activityBias": 0.85
         }
     },
-    "clm0": {
+    "clm": {
         "path": "./clm0.onnx", "defaults": {
             "nSteps": 20, "temperature": 0.85, "activityBias": 0.85
         }
@@ -26,6 +26,12 @@ export const MODEL_PARAMS = {
     ,
     "clm_quick": {
         "path": "./clm_quick.onnx", "defaults": {
+            "nSteps": 20, "temperature": 0.85, "activityBias": 0.85
+        }
+    }
+    ,
+    "clm_medium": {
+        "path": "./256_8_4.onnx", "defaults": {
             "nSteps": 20, "temperature": 0.85, "activityBias": 0.85
         }
     }

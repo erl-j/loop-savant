@@ -12,7 +12,7 @@ function App() {
   React.useEffect(() => {
     const getModel = async (modelName) => {
       //
-      let isCLM = modelName === "clm" || modelName === "clm_quick";
+      let isCLM = modelName === "clm" || modelName === "clm_quick" || modelName === "clm_medium";
       const ModelClass = isCLM ? CLModel : Model;
       const model = new ModelClass(MODEL_PARAMS[modelName]);
       await model.initialize();
