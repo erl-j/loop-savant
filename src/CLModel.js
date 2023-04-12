@@ -335,13 +335,15 @@ class CLModel {
             duration: randPerm.map(i => maskSuperposition.duration.slice(i * CLM_DURATION_VOCAB_SIZE, (i + 1) * CLM_DURATION_VOCAB_SIZE)).flat(),
         }
 
-        let MAX_NOTES_TO_ADD = 32;
+        let MAX_NOTES_TO_ADD = 128;
+
+        let nNotesToAdd = Math.min(MAX_NOTES_TO_ADD, nRemainingNotes);
 
         // crop maskSuperposition to MAX_NOTES_TO_ADD
         maskSuperposition = {
-            pitch: maskSuperposition.pitch.slice(0, MAX_NOTES_TO_ADD * CLM_PITCH_VOCAB_SIZE),
-            onset: maskSuperposition.onset.slice(0, MAX_NOTES_TO_ADD * CLM_DURATION_VOCAB_SIZE),
-            duration: maskSuperposition.duration.slice(0, MAX_NOTES_TO_ADD * CLM_DURATION_VOCAB_SIZE),
+            pitch: maskSuperposition.pitch.slice(0, nNotesToAdd * CLM_PITCH_VOCAB_SIZE),
+            onset: maskSuperposition.onset.slice(0, nNotesToAdd * CLM_DURATION_VOCAB_SIZE),
+            duration: maskSuperposition.duration.slice(0, nNotesToAdd * CLM_DURATION_VOCAB_SIZE),
         }
 
         // join with existing notes
@@ -388,7 +390,7 @@ class CLModel {
         }
         );
 
-        let superposition = await this.sample(combinedSuperposition, temperature, MAX_NOTES_TO_ADD,false);
+        let superposition = await this.sample(combinedSuperposition, temperature, nNotesToAdd,false);
 
         // convert to note sequence
         let noteSequence = this.superpositionToNoteSequence(superposition);
