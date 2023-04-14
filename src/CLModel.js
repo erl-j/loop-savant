@@ -70,34 +70,8 @@ class CLModel {
         }
         console.log(`Average execution time over ${n_iterations} iterations: ${_.mean(execution_times)} ms`);
     }
-    flatRollToNoteSequence(flatRoll) {
-        // flatRoll: timesteps * pitches
-        // returns: [{ pitch: 0, onset: 0, duration: 0 }, ...]
-        let noteSequence = [];
-    
-        // iterate over flatRoll, track note onsets and offsets, 
-        // compute onset, pitch and duration and add to noteSequence
-        for (let pitch = 0; pitch < MODEL_PITCHES; pitch++) {
-            let note_on = false;
-            for(let t = 0; t < MODEL_TIMESTEPS; t++){
-                if (flatRoll[pitch * MODEL_TIMESTEPS + t] == 1 && !note_on) {
-                    note_on = true;
-                    let onset = t;
-                    let duration = 0;
-                    for(let t2 = t; t2 < MODEL_TIMESTEPS; t2++){
-                        if (flatRoll[pitch * MODEL_TIMESTEPS + t2] == 1) {
-                            duration += 1;
-                        }
-                        else{
-                            break;
-                        }
-                    }
-                    noteSequence.push({ pitch: pitch, onset: onset* 2 , duration: duration * 2 });
-                }
-            }
-        }
-        return noteSequence;
-    }
+
+  
 
     async regenerate(xIn, maskIn, nSteps, temperature, activityBias, mask_rate, mode = "all") {
     }
@@ -202,7 +176,6 @@ class CLModel {
     }
 
     noteToSuperposition(note) {
-        console.log(note)
         let superposition = {
             pitch: Array((CLM_PITCH_VOCAB_SIZE)).fill(0),
             onset: Array((CLM_DURATION_VOCAB_SIZE)).fill(0),
@@ -249,11 +222,36 @@ class CLModel {
         for (let i = 0; i < noteSequence.length; i++) {
             let note = noteSequence[i];
             let pitch = note.pitch;
-            let onset = note.onset / 2;
-            let duration = note.duration / 2;
+            let onset = Math.floor(note.onset / 2);
+            let duration = Math.floor(note.duration / 2);
             flatRoll.fill(1, pitch * MODEL_TIMESTEPS + onset, pitch * MODEL_TIMESTEPS + onset + duration);
         }
         return flatRoll;
+    }
+
+    flatRollToNoteSequence(flatRoll) {
+        let noteSequence = [];
+        for (let pitch = 0; pitch < MODEL_PITCHES; pitch++) {
+            let note_on = false;
+            for(let t = 0; t < MODEL_TIMESTEPS; t++){
+                if (flatRoll[pitch * MODEL_TIMESTEPS + t] == 1 && !note_on) {
+                    note_on = true;
+                    let onset = t;
+                    let duration = 0;
+                    for(let t2 = t; t2 < MODEL_TIMESTEPS; t2++){
+                        if (flatRoll[pitch * MODEL_TIMESTEPS + t2] == 1) {
+                            duration += 1;
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                    noteSequence.push({ pitch: pitch, onset: onset*2, duration: duration*2  });
+                    note_on = false;
+                }
+            }
+        }
+        return noteSequence;
     }
 
     async generateWoInfilling(xIn, maskIn, nSteps, temperature, activityBias) {
@@ -276,7 +274,7 @@ class CLModel {
     
     async generate(xIn, maskIn,_0,temperature,_1) {
         // remove masked activity
-        let xRest = xIn.map((x, i) => x - maskIn[i]);
+        let xRest = xIn.map((x, i) => x * (1 - maskIn[i]));
 
         // convert to full domain
         let scaleX = fullToScale(xRest, SCALE, MODEL_PITCHES, MODEL_TIMESTEPS);
@@ -291,7 +289,15 @@ class CLModel {
         let maskIm2 = rectanglesToImage(maskRectangles, MODEL_TIMESTEPS, nScalePitches);
         // one liner to check that maskIm2 is equal to maskIm at every index by flattening both arrays
         assert(maskIm2.flat().every((v, i) => v === maskIm.flat()[i]));
+        
         let existingNotes = this.flatRollToNoteSequence(xRest);
+        // test noteSequenceToFlatRoll
+        let flatRollHat = this.noteSequenceToFlatRoll(existingNotes);
+        // show both sizes
+        console.log(flatRollHat)
+        console.log(xRest)
+        console.log(existingNotes)
+        assert(flatRollHat.every((v, i) => v === xRest[i]));
         let nRemainingNotes = CLM_DOCUMENT_LENGTH - existingNotes.length;
 
         let totalRectangleArea = maskRectangles.reduce((acc, rectangle) => acc + rectangle.area, 0);
@@ -335,7 +341,7 @@ class CLModel {
             duration: randPerm.map(i => maskSuperposition.duration.slice(i * CLM_DURATION_VOCAB_SIZE, (i + 1) * CLM_DURATION_VOCAB_SIZE)).flat(),
         }
 
-        let MAX_NOTES_TO_ADD = 128;
+        let MAX_NOTES_TO_ADD = 32;
 
         let nNotesToAdd = Math.min(MAX_NOTES_TO_ADD, nRemainingNotes);
 
@@ -351,9 +357,6 @@ class CLModel {
         if (existingNotes.length > 0) {
             let existingNotesSuperposition = this.noteSequenceToSuperposition(existingNotes);
             // concatenate maskSuperposition and existingNotesSuperposition
-            console.log({existingNotesSuperposition});
-            console.log("post")
-            console.log(this.superpositionToNoteSequence(existingNotesSuperposition));
             combinedSuperposition = {
                 pitch: [...maskSuperposition.pitch, ...existingNotesSuperposition.pitch],
                 onset: [...maskSuperposition.onset, ...existingNotesSuperposition.onset],
@@ -364,13 +367,16 @@ class CLModel {
             combinedSuperposition = maskSuperposition;
         }
 
-        console.log({existingNotes});
-
         // pad with -1
         let empty_superposition = this.prepareSuperposition([-1], [-1], [-1], null);
 
         // pad combinedSuperposition to CLM_DOCUMENT_LENGTH
         let nEmptyNotes = CLM_DOCUMENT_LENGTH - combinedSuperposition.pitch.length / CLM_PITCH_VOCAB_SIZE;
+
+        console.log("nEmptyNotes", nEmptyNotes)
+        console.log("existingNotes.length", existingNotes.length)
+        console.log("nNotesToAdd", nNotesToAdd)
+
         // crop empty_superposition to nEmptyNotes
         empty_superposition = {
             pitch: empty_superposition.pitch.slice(0, nEmptyNotes * CLM_PITCH_VOCAB_SIZE),
@@ -396,9 +402,12 @@ class CLModel {
         let noteSequence = this.superpositionToNoteSequence(superposition);
 
         console.log("noteSequence", noteSequence);
+        console.log("existingNotes", existingNotes);
 
         // combine with existing notes
         noteSequence = [...noteSequence, ...existingNotes];
+
+        console.log("combined noteSequence", noteSequence);
 
         let flatRoll = this.noteSequenceToFlatRoll(noteSequence);
         return flatRoll;

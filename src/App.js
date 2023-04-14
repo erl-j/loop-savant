@@ -18,7 +18,7 @@ function App() {
       await model.initialize();
       setModel(model);
     };
-    const modelName = new URLSearchParams(window.location.search).get("model") || "clm_quick";
+    const modelName = new URLSearchParams(window.location.search).get("model") || "clm_medium";
     getModel(modelName);
   }, []);
 
