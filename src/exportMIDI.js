@@ -3,8 +3,9 @@ import * as Tone from 'tone';
 import * as _ from 'lodash';
 import { groupBy } from 'lodash';
 import { Midi } from '@tonejs/midi'
+import { MIN_NOTE } from './constants';
 
-const exportMIDI = (roll_2d) => {
+const exportMIDI = (roll_2d, pitchOffset, bpm) => {
 
     let notes = []
 
@@ -17,7 +18,7 @@ const exportMIDI = (roll_2d) => {
             if (roll_2d[pitch][timeStep] == 1) {
                 if (note == null) {
                     note = {
-                        pitch: Tone.Frequency(pitch+60, "midi").toMidi(), start: timeStep, end: timeStep+1 
+                        pitch: Tone.Frequency(pitch+pitchOffset, "midi").toMidi(), start: timeStep, end: timeStep+1 
                     }
                 }
                 else {
@@ -36,10 +37,9 @@ const exportMIDI = (roll_2d) => {
     // sort notes by start time
     notes.sort((a, b) => a.start - b.start)
 
-    let T = 1 / 8
+    let T = 1 / 4
 
     var midi = new Midi()
-
 
     // add a track
     const track = midi.addTrack()
@@ -51,6 +51,9 @@ const exportMIDI = (roll_2d) => {
             duration: (note.end - note.start) * T
         })
     }
+
+    // set the BPM
+    midi.header.setTempo(bpm)
 
     // let obj = midi.toJSON()
 

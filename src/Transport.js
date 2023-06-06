@@ -1,8 +1,8 @@
 import React from 'react';
 import * as Tone from 'tone';
 import { WebMidi } from 'webmidi';
+import { MIN_NOTE } from './constants';
 
-const MIN_NOTE = 38;
 const POLYPHONY = 36;
 const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, tempo, pitchOffset, output, synthParameters }) => {
 

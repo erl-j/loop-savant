@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import React from "react";
 import {
+    MIN_NOTE,
     MODEL_PITCHES, MODEL_TIMESTEPS, SCALE
 } from "./constants";
 import RollView from "./RollView";
@@ -34,7 +35,7 @@ const Roll = ({ model }) => {
     const [modelIsBusy, setModelIsBusy] = React.useState(false)
 
     const exportRollAsMIDI = () => {
-        exportMIDI(_.chunk(roll, MODEL_TIMESTEPS))
+        exportMIDI(_.chunk(scaleToFull(roll, SCALE, MODEL_PITCHES, MODEL_TIMESTEPS), MODEL_TIMESTEPS), pitchOffset + MIN_NOTE, tempo)
     }
 
 
