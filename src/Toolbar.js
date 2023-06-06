@@ -32,7 +32,8 @@ const Toolbar = ({
     selectAll,
     modelIsBusy,
     synthParameters,
-    setSynthParameters
+    setSynthParameters,
+    exportRollAsMIDI
 }) => {
 
 
@@ -146,7 +147,7 @@ const Toolbar = ({
                         }} />
                     </div>
                     <div style={{ width: "22%", display: output !== "built-in" ? "none" : "" }}>
-                        <h4>⚘</h4>
+                        <h4  style={{cursor:"pointer"}} onClick={exportRollAsMIDI}>⚘</h4>
                         <Range label="volume" min={-20} max={0} step={0.01} value={synthParameters.volume} onChange={(value) => {
                             setSynthParameters({ ...synthParameters, volume: value })
                         }} />

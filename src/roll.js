@@ -33,6 +33,10 @@ const Roll = ({ model }) => {
     const [pitchOffset, setPitchOffset] = React.useState(0)
     const [modelIsBusy, setModelIsBusy] = React.useState(false)
 
+    const exportRollAsMIDI = () => {
+        exportMIDI(_.chunk(roll, MODEL_TIMESTEPS))
+    }
+
 
     const [synthParameters, setSynthParameters] = React.useState({
         oscillator: {
@@ -115,12 +119,7 @@ const Roll = ({ model }) => {
 
     let n_masked = mask.reduce((a, b) => a + b, 0)
     return (
-        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 16 }} onClick={() => exportMIDI(
-            _.chunk(roll, MODEL_TIMESTEPS)
-        )}>
-            <button style={{ position: "absolute", top: 0, left:0, fontSize: 21, padding: 16, borderRadius: 0, backgroundColor: "white", border: "2px solid teal" }}>
-                Export midi
-            </button>
+        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 16 }} >
             <div style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                     <Toolbar editMode={editMode} setEditMode={setEditMode}
@@ -144,6 +143,7 @@ const Roll = ({ model }) => {
                         modelIsBusy={modelIsBusy}
                         synthParameters={synthParameters}
                         setSynthParameters={setSynthParameters}
+                        exportRollAsMIDI={exportRollAsMIDI}
                     ></Toolbar>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
