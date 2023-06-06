@@ -15,7 +15,7 @@ export const MODEL_PARAMS = {
     },
     "tiny": {
         "path": "./tiny.onnx", "defaults": {
-            "nSteps": 20, "temperature": 0.85, "activityBias": 0.85
+            "nSteps": 20, "temperature": 0.85, "activityBias": 0.9
         }
     },
     "clm": {

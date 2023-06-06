@@ -17,11 +17,11 @@ const exportMIDI = (roll_2d) => {
             if (roll_2d[pitch][timeStep] == 1) {
                 if (note == null) {
                     note = {
-                        pitch: Tone.Frequency(pitch, "midi").toMidi(), start: timeStep, end: timeStep
+                        pitch: Tone.Frequency(pitch+60, "midi").toMidi(), start: timeStep, end: timeStep+1 
                     }
                 }
                 else {
-                    note.end = timeStep
+                    note.end = timeStep+1
                 }
             }
             else {
@@ -52,27 +52,25 @@ const exportMIDI = (roll_2d) => {
         })
     }
 
-    let obj = midi.toJSON()
+    // let obj = midi.toJSON()
 
-    console.log(obj)
+    // console.log(obj)
 
-    obj.duration = n_timesteps * T
+    // obj.duration = n_timesteps * T
 
-    midi.fromJSON(obj)
-    // print uri to console with filename "test.mid"
-    // in node 
-    //fs.writeFileSync("output.mid", new Buffer(midi.toArray()))
+    // midi.fromJSON(obj)
 
-    // in browser
-    let midiArray = midi.toArray()
-    let midiBlob = new Blob([new Uint8Array(midiArray)], { type: 'audio/midi' })
-    let midiUrl = URL.createObjectURL(midiBlob)
+    const data = new Uint8Array(midi.toArray()); // Replace with your actual data
+    const blob = new Blob([data], { type: 'audio/midi' });
+
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    let fileName = "output.mid"
-    link.href = midiUrl
-    link.download = fileName;
-    // some browser needs the anchor to be in the doc
-    document.body.append(link);
+    link.href = url;
+    link.download = 'output.mid';
+    link.textContent = 'Download output.mid';
+
+    // append the link to the DOM
+    document.body.appendChild(link);
     link.click();
     link.remove();
 

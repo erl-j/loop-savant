@@ -9,6 +9,7 @@ import Transport from "./Transport";
 import useRefState from "./useRefState";
 import Sidepanel from "./Sidepanel";
 import {scaleToFull, fullToScale} from "./utils";
+import exportMIDI from "./exportMIDI";
 
 //const SCALE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
@@ -21,7 +22,6 @@ const Roll = ({ model }) => {
     const [mask, setMask] = React.useState([...new Array(nPitches * MODEL_TIMESTEPS).fill(1)])
 
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
-
 
     const [nSteps, setNSteps] = React.useState(model.defaults.nSteps)
     const [temperature, setTemperature] = React.useState(model.defaults.temperature)
@@ -115,7 +115,12 @@ const Roll = ({ model }) => {
 
     let n_masked = mask.reduce((a, b) => a + b, 0)
     return (
-        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 16 }}>
+        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 16 }} onClick={() => exportMIDI(
+            _.chunk(roll, MODEL_TIMESTEPS)
+        )}>
+            <button style={{ position: "absolute", top: 0, left:0, fontSize: 21, padding: 16, borderRadius: 0, backgroundColor: "white", border: "2px solid teal" }}>
+                Export midi
+            </button>
             <div style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                     <Toolbar editMode={editMode} setEditMode={setEditMode}
