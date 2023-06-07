@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/loop-savant/static/css/main.c32135ec.css",
+    "main.css": "/loop-savant/static/css/main.1ec868f1.css",
     "main.js": "/loop-savant/static/js/main.09141ae9.js",
     "static/js/787.e9f01d36.chunk.js": "/loop-savant/static/js/787.e9f01d36.chunk.js",
     "static/media/roboto-latin-900italic.woff": "/loop-savant/static/media/roboto-latin-900italic.c20d916c1a1b094c1cec.woff",
@@ -56,12 +56,12 @@
     "static/media/roboto-mono-latin-400.woff2": "/loop-savant/static/media/roboto-mono-latin-400.535bc89d4af715503b01.woff2",
     "static/media/roboto-mono-latin-700.woff2": "/loop-savant/static/media/roboto-mono-latin-700.c5c3959c04004102ea46.woff2",
     "index.html": "/loop-savant/index.html",
-    "main.c32135ec.css.map": "/loop-savant/static/css/main.c32135ec.css.map",
+    "main.1ec868f1.css.map": "/loop-savant/static/css/main.1ec868f1.css.map",
     "main.09141ae9.js.map": "/loop-savant/static/js/main.09141ae9.js.map",
     "787.e9f01d36.chunk.js.map": "/loop-savant/static/js/787.e9f01d36.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.c32135ec.css",
+    "static/css/main.1ec868f1.css",
     "static/js/main.09141ae9.js"
   ]
 }
