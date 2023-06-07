@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FaAdjust, FaCropAlt, FaDna, FaEraser, FaExpand, FaMagic, FaMinus, FaPencilAlt, FaPlus, FaTrashAlt } from "react-icons/fa";
+import { FaAdjust, FaCropAlt, FaDna, FaDownload, FaEraser, FaExpand, FaMagic, FaMinus, FaPencilAlt, FaPlus, FaTrashAlt } from "react-icons/fa";
 import Select from 'react-select';
 import { WebMidi } from "webmidi";
 import DropDown from './DropDown';
@@ -98,6 +98,10 @@ const Toolbar = ({
                         <ToolbarButton text="variation" icon={<FaDna></FaDna>} keyboardCharacter="v" onActivate={() => runVariation("all")} disabled={!transformsAreAvailable} />
                         <ToolbarButton text="sparser" icon={<FaMinus></FaMinus>} keyboardCharacter="n" onActivate={() => runVariation("sparser")} disabled={!transformsAreAvailable} />
                         <ToolbarButton text="denser" icon={<FaPlus></FaPlus>} keyboardCharacter="m" onActivate={() => runVariation("denser")} disabled={!transformsAreAvailable} />
+                    </div>
+                    <div>
+                        <h4>File</h4>
+                        <ToolbarButton text="export MIDI" icon={<FaDownload></FaDownload>} keyboardCharacter={"p"} onActivate={exportRollAsMIDI} />
                     </div>
                 </div>
             </div >
