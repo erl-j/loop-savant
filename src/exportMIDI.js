@@ -69,7 +69,7 @@ const exportMIDI = (roll_2d, pitchOffset, bpm) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'output.mid';
+    link.download = 'ls_midi.mid';
     link.textContent = 'Download output.mid';
 
     // append the link to the DOM
