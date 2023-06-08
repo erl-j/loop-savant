@@ -19,10 +19,19 @@ let nPitches = (MODEL_PITCHES / 12) * SCALE.length
 
 const Roll = ({ model }) => {
 
+    const [isPlaying, setIsPlaying] = React.useState(true)
+    const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
+
+    React.useEffect(() => {
+        if (!isPlaying) {
+            setTimeStep(0)
+        }
+    }, [isPlaying])
+
+
     const [roll, setRoll, rollRef] = useRefState(new Array(nPitches * MODEL_TIMESTEPS).fill(0))
     const [mask, setMask] = React.useState([...new Array(nPitches * MODEL_TIMESTEPS).fill(1)])
 
-    const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
     const [nSteps, setNSteps] = React.useState(model.defaults.nSteps)
     const [temperature, setTemperature] = React.useState(model.defaults.temperature)
@@ -34,10 +43,10 @@ const Roll = ({ model }) => {
     const [pitchOffset, setPitchOffset] = React.useState(0)
     const [modelIsBusy, setModelIsBusy] = React.useState(false)
 
+
     const exportRollAsMIDI = () => {
         exportMIDI(_.chunk(scaleToFull(roll, SCALE, MODEL_PITCHES, MODEL_TIMESTEPS), MODEL_TIMESTEPS), pitchOffset + MIN_NOTE, tempo)
     }
-
 
     const [synthParameters, setSynthParameters] = React.useState({
         oscillator: {
@@ -145,11 +154,13 @@ const Roll = ({ model }) => {
                         synthParameters={synthParameters}
                         setSynthParameters={setSynthParameters}
                         exportRollAsMIDI={exportRollAsMIDI}
+                        isPlaying={isPlaying}
+                        setIsPlaying={setIsPlaying}
                     ></Toolbar>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
                     <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode} modelIsBusy={modelIsBusy} scale={SCALE}></RollView>
-                    <Transport output={output} pitchOffset={pitchOffset} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} synthParameters={synthParameters} ></Transport>
+                    <Transport output={output} pitchOffset={pitchOffset} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} synthParameters={synthParameters} isPlaying={isPlaying} ></Transport>
                 </div >
             </div >
         </div >

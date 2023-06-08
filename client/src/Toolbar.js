@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FaAdjust, FaCropAlt, FaDna, FaDownload, FaEraser, FaExpand, FaMagic, FaMinus, FaPencilAlt, FaPlus, FaTrashAlt } from "react-icons/fa";
+import { FaAdjust, FaCropAlt, FaDna, FaDownload, FaEraser, FaExpand, FaMagic, FaMinus, FaPencilAlt, FaPlay, FaPlus, FaSquare, FaTrashAlt } from "react-icons/fa";
 import Select from 'react-select';
 import { WebMidi } from "webmidi";
 import DropDown from './DropDown';
@@ -33,7 +33,9 @@ const Toolbar = ({
     modelIsBusy,
     synthParameters,
     setSynthParameters,
-    exportRollAsMIDI
+    exportRollAsMIDI,
+    isPlaying,
+    setIsPlaying
 }) => {
 
 
@@ -102,6 +104,8 @@ const Toolbar = ({
                     <div>
                         <h4>File</h4>
                         <ToolbarButton text="export MIDI" icon={<FaDownload></FaDownload>} keyboardCharacter={"p"} onActivate={exportRollAsMIDI} />
+                        <ToolbarButton text={isPlaying ? "stop" : "play"}
+                         icon={isPlaying ? <FaSquare></FaSquare> : <FaPlay></FaPlay>} keyboardCharacter={"space"} onActivate={() => setIsPlaying(!isPlaying)} />
                     </div>
                 </div>
             </div >
@@ -151,7 +155,7 @@ const Toolbar = ({
                         }} />
                     </div>
                     <div style={{ width: "22%", display: output !== "built-in" ? "none" : "" }}>
-                        <h4  style={{cursor:"pointer"}} onClick={exportRollAsMIDI}>⚘</h4>
+                        <h4 >⚘</h4>
                         <Range label="volume" min={-20} max={0} step={0.01} value={synthParameters.volume} onChange={(value) => {
                             setSynthParameters({ ...synthParameters, volume: value })
                         }} />

@@ -4,20 +4,37 @@ import { WebMidi } from 'webmidi';
 import { MIN_NOTE } from './constants';
 
 const POLYPHONY = 36;
-const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, tempo, pitchOffset, output, synthParameters }) => {
+const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, tempo, pitchOffset, output, synthParameters, isPlaying }) => {
 
     const pitchOffsetRef = React.useRef(null);
     const synthRef = React.useRef(null);
     const outputRef = React.useRef(null);
 
+    // effect to stop and start transport
     React.useEffect(() => {
+        if (isPlaying) {
+            Tone.Transport.start();
+     }
+        else {
+            releaseAll();
+            Tone.Transport.stop();
+        }
+    }, [isPlaying])
+
+    const releaseAll = () => {
         WebMidi.outputs.forEach(output => {
             output.sendAllNotesOff();
-            output.sendAllSoundOff();
+            //output.sendAllSoundOff();
         })
         if (synthRef.current) {
-            synthRef.current.releaseAll();
+            console.log("releasing synth")
+            synthRef.current.releaseAll("+0.01");
+
         }
+    }
+
+    React.useEffect(() => {
+        releaseAll();
         pitchOffsetRef.current = pitchOffset;
         outputRef.current = output;
     }, [pitchOffset, output])
@@ -53,6 +70,8 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
         Tone.Transport.bpm.value = tempo;
         const wrapTimeStep = (timeStep) => (timeStep + nTimeSteps) % nTimeSteps
         Tone.Transport.scheduleRepeat(function (time) {
+            if(isPlaying){
+
             let currentTimeStep = timeStepRef.current;
             let previousTimeStep = wrapTimeStep(currentTimeStep - 1);
 
@@ -89,7 +108,7 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
                 }
             }
             setTimeStep((step) => (step + 1) % nTimeSteps);
-
+            }
         }
             , "8n");
 
