@@ -4,6 +4,7 @@ import CLModel from './CLModel.js';
 import Model from './Model.js';
 import Roll from './Roll.js';
 import { MODEL_PARAMS } from './constants.js';
+import {auth} from './firebase.js';
 
 function App() {
 

@@ -9,6 +9,8 @@
     "@testing-library/user-event": "^13.5.0",
     "@tonejs/midi": "^2.0.28",
     "@viselect/react": "^3.2.4",
+    "firebase": "^9.22.1",
+    "firebaseui": "^6.0.2",
     "gh-pages": "^4.0.0",
     "lodash": "^4.17.21",
     "npm": "^9.3.0",
