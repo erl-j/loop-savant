@@ -11,6 +11,7 @@ import useRefState from "./useRefState";
 import Sidepanel from "./Sidepanel";
 import {scaleToFull, fullToScale} from "./utils";
 import exportMIDI from "./exportMIDI";
+import { useLocalStorage } from "usehooks-ts";
 
 //const SCALE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
@@ -19,17 +20,25 @@ let nPitches = (MODEL_PITCHES / 12) * SCALE.length
 
 const Roll = ({ model }) => {
 
-    const [isPlaying, setIsPlaying] = React.useState(true)
+    const [isPlaying, setIsPlaying, isPlayingRef] = useRefState(true)
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
-    React.useEffect(() => {
-        if (!isPlaying) {
-            setTimeStep(0)
-        }
-    }, [isPlaying])
-
-
+    const [cachedRoll, setCachedRoll] = useLocalStorage("roll", new Array(nPitches * MODEL_TIMESTEPS).fill(0))
     const [roll, setRoll, rollRef] = useRefState(new Array(nPitches * MODEL_TIMESTEPS).fill(0))
+
+    // effect that reads roll from local storage
+    React.useEffect(() => {
+        if (cachedRoll) {
+            setRoll(cachedRoll)
+        }
+    }, [])
+
+
+    React.useEffect(() => {
+        setCachedRoll(roll)
+    }, [roll])
+            
+
     const [mask, setMask] = React.useState([...new Array(nPitches * MODEL_TIMESTEPS).fill(1)])
 
 
@@ -38,7 +47,7 @@ const Roll = ({ model }) => {
     const [activityBias, setActivityBias] = React.useState(model.defaults.activityBias)
     const [editMode, setEditMode] = React.useState("select");
     const [variationStrength, setVariationStrength] = React.useState(0.25)
-    const [output, setOutput] = React.useState("built-in")
+    const [output, setOutput] = useLocalStorage("output", "built-in")
     const [tempo, setTempo] = React.useState(160)
     const [pitchOffset, setPitchOffset] = React.useState(0)
     const [modelIsBusy, setModelIsBusy] = React.useState(false)
@@ -160,7 +169,7 @@ const Roll = ({ model }) => {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
                     <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode} modelIsBusy={modelIsBusy} scale={SCALE}></RollView>
-                    <Transport output={output} pitchOffset={pitchOffset} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} synthParameters={synthParameters} isPlaying={isPlaying} ></Transport>
+                    <Transport output={output} pitchOffset={pitchOffset} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} synthParameters={synthParameters} isPlayingRef={isPlayingRef} ></Transport>
                 </div >
             </div >
         </div >

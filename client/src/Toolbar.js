@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { FaAdjust, FaCropAlt, FaDna, FaDownload, FaEraser, FaExpand, FaMagic, FaMinus, FaPencilAlt, FaPlay, FaPlus, FaSquare, FaTrashAlt } from "react-icons/fa";
+import { FaAdjust, FaCropAlt, FaDna, FaDownload, FaEraser, FaExpand, FaHeart, FaMagic, FaMinus, FaPencilAlt, FaPlay, FaPlus, FaSquare, FaTrashAlt } from "react-icons/fa";
+import {BiSelection} from "react-icons/bi";
+import {AiOutlineFullscreen} from "react-icons/ai";
 import Select from 'react-select';
 import { WebMidi } from "webmidi";
 import DropDown from './DropDown';
@@ -78,7 +80,7 @@ const Toolbar = ({
 
     return (
         <div style={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", marginBottom: 32 }} >
-            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-start", width: "38%" }}>
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-start", width: "40%" }}>
                 <h1>Loop Savant</h1>
                 {!firstGenerationIsDone ? <span style={{ animation: "glow 1s linear infinite" }}>To start, press <b>a</b> (select all) followed by <b>g</b> (generate)</span> : ""}
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
@@ -89,8 +91,8 @@ const Toolbar = ({
                     </div>
                     <div>
                         <h4>Select</h4>
-                        <ToolbarButton text="select tool" icon={<FaCropAlt></FaCropAlt>} keyboardCharacter="s" onActivate={() => setEditMode("select")} isActive={editMode == "select"} />
-                        <ToolbarButton text="select all" icon={<FaExpand></FaExpand>} keyboardCharacter="a" onActivate={selectAll} />
+                        <ToolbarButton text="select tool" icon={<BiSelection></BiSelection>} keyboardCharacter="s" onActivate={() => setEditMode("select")} isActive={editMode == "select"} />
+                        <ToolbarButton text="select all" icon={<AiOutlineFullscreen></AiOutlineFullscreen>} keyboardCharacter="a" onActivate={selectAll} />
                         <ToolbarButton text="delete selected notes" icon={<FaTrashAlt></FaTrashAlt>} keyboardCharacter="Backspace" onActivate={deleteSelection} disabled={!transformsAreAvailable} />
                         <ToolbarButton text="invert selection" icon={<FaAdjust></FaAdjust>} keyboardCharacter="i" onActivate={invertSelection} />
                     </div>
@@ -103,6 +105,7 @@ const Toolbar = ({
                     </div>
                     <div>
                         <h4>File</h4>
+                        <ToolbarButton text="like" icon={<FaHeart></FaHeart>} keyboardCharacter={"l"}  />
                         <ToolbarButton text="export MIDI" icon={<FaDownload></FaDownload>} keyboardCharacter={"p"} onActivate={exportRollAsMIDI} />
                         <ToolbarButton text={isPlaying ? "stop" : "play"}
                          icon={isPlaying ? <FaSquare></FaSquare> : <FaPlay></FaPlay>} keyboardCharacter={"space"} onActivate={() => setIsPlaying(!isPlaying)} />

@@ -4,27 +4,24 @@ import { WebMidi } from 'webmidi';
 import { MIN_NOTE } from './constants';
 
 const POLYPHONY = 36;
-const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, tempo, pitchOffset, output, synthParameters, isPlaying }) => {
+const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeStep, tempo, pitchOffset, output, synthParameters, isPlayingRef }) => {
 
     const pitchOffsetRef = React.useRef(null);
     const synthRef = React.useRef(null);
     const outputRef = React.useRef(null);
 
-    // effect to stop and start transport
-    React.useEffect(() => {
-        if (isPlaying) {
-            Tone.Transport.start();
-     }
-        else {
-            releaseAll();
-            Tone.Transport.stop();
-        }
-    }, [isPlaying])
-
     const releaseAll = () => {
         WebMidi.outputs.forEach(output => {
             output.sendAllNotesOff();
-            //output.sendAllSoundOff();
+            output.sendAllSoundOff();
+
+            // hack to make sure all notes are off
+
+            output.sendAllNotesOff({ time:  WebMidi.time + 100 });
+            output.sendAllSoundOff({ time:  WebMidi.time + 100 });
+
+            output.sendAllNotesOff({ time:  WebMidi.time + 1000 });
+            output.sendAllSoundOff({ time:  WebMidi.time + 1000 });
         })
         if (synthRef.current) {
             console.log("releasing synth")
@@ -32,6 +29,20 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
 
         }
     }
+
+    React.useEffect(() => {
+        if (isPlayingRef.current) {
+            Tone.Transport.start();
+        }
+        else {
+            Tone.Transport.stop();
+            Tone.Transport.cancel();
+            setTimeStep(0);
+            releaseAll();
+        }}
+        ,[isPlayingRef.current]
+        )
+
 
     React.useEffect(() => {
         releaseAll();
@@ -54,6 +65,9 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
 
 
     React.useEffect(() => {
+
+        if (isPlayingRef.current) {
+
         synthRef.current = new Tone.PolySynth(Tone.Synth, POLYPHONY).toDestination();
         synthRef.current.set({
             oscillator: {
@@ -70,13 +84,13 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
         Tone.Transport.bpm.value = tempo;
         const wrapTimeStep = (timeStep) => (timeStep + nTimeSteps) % nTimeSteps
         Tone.Transport.scheduleRepeat(function (time) {
-            if(isPlaying){
 
             let currentTimeStep = timeStepRef.current;
             let previousTimeStep = wrapTimeStep(currentTimeStep - 1);
 
             const offset = WebMidi.time - Tone.context.currentTime * 1000;
             const midiTime = offset + time * 1000
+
 
             for (let i = 0; i < nPitches; i++) {
                 let noteIsActive = rollRef.current[i * nTimeSteps + currentTimeStep] == 1;
@@ -86,7 +100,6 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
 
 
                 if (!noteIsActive || currentTimeStep == 0) {
-
                     synthRef.current.triggerRelease(notestr,
                         time);
                     if (outputRef.current != "built-in") {
@@ -95,7 +108,7 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
                     }
 
                 }
-                if (noteIsActive && !noteWasActive) {
+                if ( noteIsActive && !noteWasActive) {
                     if (outputRef.current == "built-in") {
                         synthRef.current.triggerAttack(
                             notestr,
@@ -107,13 +120,20 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
                     }
                 }
             }
-            setTimeStep((step) => (step + 1) % nTimeSteps);
-            }
+            setTimeStep((step) => (step + 1) % nTimeSteps);             
         }
             , "8n");
 
         Tone.start();
         Tone.Transport.start();
+
+        }
+
+        else {
+            Tone.Transport.stop();
+            Tone.Transport.cancel();
+            releaseAll();
+        }
 
         const cleanup = () => {
             console.log("transport unmounting")
@@ -134,7 +154,7 @@ const Transport = ({ rollRef, timeStepRef, nPitches, nTimeSteps, scale, setTimeS
 
 
 
-    }, [])
+    }, [isPlayingRef.current])
 
     return <></>
 }
