@@ -4,9 +4,15 @@ import CLModel from './CLModel.js';
 import Model from './Model.js';
 import Roll from './Roll.js';
 import { MODEL_PARAMS } from './constants.js';
-import {auth} from './firebase.js';
+import firebaseApp from './firebase.js';
+import Auth from './Auth.js';
+import { useLocalStorage } from 'usehooks-ts';
 
 function App() {
+
+  const [user, setUser] = useLocalStorage("user", null);
+
+  const userHasValidAccessToken = user && user.stsTokenManager && user.stsTokenManager.accessToken && user.stsTokenManager.expirationTime && user.stsTokenManager.expirationTime > Date.now() / 1000;
 
   const [model, setModel] = React.useState(null);
 
@@ -56,9 +62,12 @@ function App() {
 
   return (
     <div className="App" style={{ width: "100%" }}>
-      {isOn ? <Roll model={model} />
+      {userHasValidAccessToken ?
+      (isOn ? <Roll model={model} />
         :
-        Welcome()}
+        Welcome())
+      :
+      <Auth />}
     </div>
   );
 }
