@@ -2,7 +2,7 @@ import React from 'react';
 import { Bars } from "react-loader-spinner";
 import CLModel from './CLModel.js';
 import Model from './Model.js';
-import Roll from './Roll.js';
+import Workspace from './Workspace.js';
 import { MODEL_PARAMS } from './constants.js';
 import firebaseApp from './firebase.js';
 import Auth from './Auth.js';
@@ -63,7 +63,7 @@ function App() {
   return (
     <div className="App" style={{ width: "100%" }}>
       {userHasValidAccessToken ?
-      (isOn ? <Roll model={model} />
+      (isOn ? <Workspace model={model} />
         :
         Welcome())
       :

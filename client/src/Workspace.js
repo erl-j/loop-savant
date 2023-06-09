@@ -11,6 +11,7 @@ import {
 import exportMIDI from "./exportMIDI";
 import useRefState from "./useRefState";
 import { fullToScale, scaleToFull } from "./utils";
+import Playlist from "./Playlist";
 
 //const SCALE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
@@ -135,7 +136,10 @@ const Roll = ({ model }) => {
 
     let n_masked = mask.reduce((a, b) => a + b, 0)
     return (
-        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 16 }} >
+        <div style={{ width: "100%", display: "flex", justifyContent: "space-evenly", marginTop: 16 }} >
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: "10vw" }}>
+            <Playlist></Playlist>
+            </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                     <Toolbar editMode={editMode} setEditMode={setEditMode}
