@@ -1,21 +1,19 @@
 import * as _ from "lodash";
 import React from "react";
+import { useLocalStorage } from "usehooks-ts";
+import RollView from "./RollView";
+import Toolbar from "./Toolbar";
+import Transport from "./Transport";
 import {
     MIN_NOTE,
     MODEL_PITCHES, MODEL_TIMESTEPS, SCALE
 } from "./constants";
-import RollView from "./RollView";
-import Toolbar from "./Toolbar";
-import Transport from "./Transport";
-import useRefState from "./useRefState";
-import Sidepanel from "./Sidepanel";
-import {scaleToFull, fullToScale} from "./utils";
 import exportMIDI from "./exportMIDI";
-import { useLocalStorage } from "usehooks-ts";
+import useRefState from "./useRefState";
+import { fullToScale, scaleToFull } from "./utils";
 
 //const SCALE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
-console.assert(MODEL_PITCHES % 12 == 0)
 let nPitches = (MODEL_PITCHES / 12) * SCALE.length
 
 const Roll = ({ model }) => {
@@ -40,7 +38,6 @@ const Roll = ({ model }) => {
             
 
     const [mask, setMask] = React.useState([...new Array(nPitches * MODEL_TIMESTEPS).fill(1)])
-
 
     const [nSteps, setNSteps] = React.useState(model.defaults.nSteps)
     const [temperature, setTemperature] = React.useState(model.defaults.temperature)

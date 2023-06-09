@@ -1,4 +1,5 @@
 import {getAuth, signInAnonymously, signInWithEmailAndPassword} from "firebase/auth";
+import {getFirestore} from "firebase/firestore";
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -24,3 +25,4 @@ const analytics = getAnalytics(firebaseApp);
 
 export const auth = getAuth(firebaseApp);
 export default firebaseApp;
+export const db = getFirestore(firebaseApp);

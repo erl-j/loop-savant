@@ -4,9 +4,9 @@ import {BiSelection} from "react-icons/bi";
 import {AiOutlineFullscreen} from "react-icons/ai";
 import Select from 'react-select';
 import { WebMidi } from "webmidi";
-import DropDown from './DropDown';
+import DropDown from './Generics/DropDown';
 import "./index.css";
-import Range from './Range';
+import Range from './Generics/Range';
 import ToolbarButton from './ToolbarButton';
 
 const Toolbar = ({
