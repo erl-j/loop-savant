@@ -3,7 +3,7 @@ import { db } from "./firebase.js";
 import { useLocalStorage } from "usehooks-ts";
 import {collection,doc,setDoc,getDoc,getDocs,query} from "firebase/firestore";
 
-const Playlist = () => {
+const Playlist = ({postChangeCounter}) => {
 
     const [user, setUser] = useLocalStorage("user", null);
     const [loops, setLoops] = React.useState([]);
@@ -26,13 +26,16 @@ const Playlist = () => {
             const querySnapshot = await getDocs(q);
             let newLoops = querySnapshot.docs.map((doc) => {
                 console.log(doc.id, " => ", doc.data());
-                return doc.data()
+                // add id to loop object
+                let data = doc.data()
+                data.id = doc.id
+                return data
             }
             )
             setLoops(newLoops)
         }
         getUserLoops()
-    }, [])
+    }, [postChangeCounter])
 
     React.useEffect(() => {
         const getUsername = async () => {
@@ -51,10 +54,10 @@ const Playlist = () => {
 
     return <div>
         <h1>Playlist</h1>
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", flexDirection: "column"}}>
             {loops.length}
             {loops.map((loop) => 
-                <div>
+                <div key={loop.id}>
                     <h2>{loop.title}</h2>
                     <h3>{loop.bpm}</h3>
                 </div>

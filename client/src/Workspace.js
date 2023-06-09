@@ -12,12 +12,39 @@ import exportMIDI from "./exportMIDI";
 import useRefState from "./useRefState";
 import { fullToScale, scaleToFull } from "./utils";
 import Playlist from "./Playlist";
-
-//const SCALE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+import {collection,doc,setDoc,getDoc,getDocs,query} from "firebase/firestore";
+import { db } from "./firebase.js";
+import { serverTimestamp } from "firebase/firestore";
 
 let nPitches = (MODEL_PITCHES / 12) * SCALE.length
 
 const Roll = ({ model }) => {
+
+    const [user, setUser] = useLocalStorage("user", null);
+
+    const [postChangeCounter, setPostChangeCounter] = React.useState(0)
+
+    const saveLoop = async () => {
+        let randomName = Math.random().toString(36).substring(7);
+
+        let loopObject = {
+            roll : roll,
+            pitchOffset : pitchOffset,
+            bpm : tempo,
+            title : randomName,
+            // server timestamp
+            createdAt: serverTimestamp()
+        }
+        // creates a new loop and adds it to the loops subcollection of the user
+        // let firebase generate a unique id for the loop
+        const docRef = await doc(collection(db, "users", user.uid, "loops"));
+        await setDoc(docRef, loopObject);
+        setPostChangeCounter(postChangeCounter + 1)
+
+
+        console.log("Document written with ID: ", docRef.id);
+    }
+
 
     const [isPlaying, setIsPlaying, isPlayingRef] = useRefState(true)
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
@@ -138,7 +165,7 @@ const Roll = ({ model }) => {
     return (
         <div style={{ width: "100%", display: "flex", justifyContent: "space-evenly", marginTop: 16 }} >
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: "10vw" }}>
-            <Playlist></Playlist>
+            <Playlist postChangeCounter={postChangeCounter}></Playlist>
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
@@ -166,6 +193,7 @@ const Roll = ({ model }) => {
                         exportRollAsMIDI={exportRollAsMIDI}
                         isPlaying={isPlaying}
                         setIsPlaying={setIsPlaying}
+                        saveLoop={saveLoop}
                     ></Toolbar>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>

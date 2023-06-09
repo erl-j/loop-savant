@@ -37,7 +37,8 @@ const Toolbar = ({
     setSynthParameters,
     exportRollAsMIDI,
     isPlaying,
-    setIsPlaying
+    setIsPlaying,
+    saveLoop
 }) => {
 
 
@@ -105,7 +106,7 @@ const Toolbar = ({
                     </div>
                     <div>
                         <h4>File</h4>
-                        <ToolbarButton text="like" icon={<FaHeart></FaHeart>} keyboardCharacter={"l"}  />
+                        <ToolbarButton text="like" icon={<FaHeart></FaHeart>} keyboardCharacter={"l"}  onActivate={saveLoop} />
                         <ToolbarButton text="export MIDI" icon={<FaDownload></FaDownload>} keyboardCharacter={"p"} onActivate={exportRollAsMIDI} />
                         <ToolbarButton text={isPlaying ? "stop" : "play"}
                          icon={isPlaying ? <FaSquare></FaSquare> : <FaPlay></FaPlay>} keyboardCharacter={"space"} onActivate={() => setIsPlaying(!isPlaying)} />
