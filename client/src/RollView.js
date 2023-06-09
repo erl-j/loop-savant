@@ -9,6 +9,24 @@ import { Scale } from "tone";
 
 const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask, editMode, setTimeStep, modelIsBusy, scale }) => {
 
+    if( mask === undefined) {
+        mask = new Array(nPitches * nTimeSteps).fill(1)
+    }
+
+    if( setMask === undefined ){
+        setMask = () => {}
+    }
+
+    if (editMode === undefined) {
+        editMode = "select"
+    }
+
+    if (modelIsBusy === undefined) {
+        modelIsBusy = false
+    }
+    
+
+
     const pitchRange = Array.from(Array(nPitches).keys());
     const timeRange = Array.from(Array(nTimeSteps).keys());
 

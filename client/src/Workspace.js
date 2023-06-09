@@ -6,7 +6,7 @@ import Toolbar from "./Toolbar";
 import Transport from "./Transport";
 import {
     MIN_NOTE,
-    MODEL_PITCHES, MODEL_TIMESTEPS, SCALE
+    MODEL_PITCHES, MODEL_TIMESTEPS, SCALE, N_SCALE_PITCHES,
 } from "./constants";
 import exportMIDI from "./exportMIDI";
 import useRefState from "./useRefState";
@@ -16,7 +16,18 @@ import {collection,doc,setDoc,getDoc,getDocs,query} from "firebase/firestore";
 import { db } from "./firebase.js";
 import { serverTimestamp } from "firebase/firestore";
 
-let nPitches = (MODEL_PITCHES / 12) * SCALE.length
+
+const defaultSynthParameters = {
+        oscillator: {
+            type: "sine"
+        },
+        envelope: {
+            attack: 0.01,
+            release: 0.05,
+            sustain: 0.5,
+        },
+        volume: -12
+}
 
 const Roll = ({ model }) => {
 
@@ -26,31 +37,37 @@ const Roll = ({ model }) => {
 
     const saveLoop = async () => {
         let randomName = Math.random().toString(36).substring(7);
-
         let loopObject = {
             roll : roll,
             pitchOffset : pitchOffset,
             bpm : tempo,
             title : randomName,
-            // server timestamp
-            createdAt: serverTimestamp()
+            createdAt: serverTimestamp(),
+            synthParameters : synthParameters
         }
-        // creates a new loop and adds it to the loops subcollection of the user
-        // let firebase generate a unique id for the loop
         const docRef = await doc(collection(db, "users", user.uid, "loops"));
         await setDoc(docRef, loopObject);
         setPostChangeCounter(postChangeCounter + 1)
+    }
 
-
-        console.log("Document written with ID: ", docRef.id);
+    const setLoop = (loop) => {
+        setRoll(loop.roll)
+        setPitchOffset(loop.pitchOffset)
+        setTempo(loop.bpm)
+        if (loop.synthParameters) {
+            setSynthParameters(loop.synthParameters)
+        }
+        else {
+            setSynthParameters(defaultSynthParameters)
+        }
     }
 
 
     const [isPlaying, setIsPlaying, isPlayingRef] = useRefState(true)
     const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
-    const [cachedRoll, setCachedRoll] = useLocalStorage("roll", new Array(nPitches * MODEL_TIMESTEPS).fill(0))
-    const [roll, setRoll, rollRef] = useRefState(new Array(nPitches * MODEL_TIMESTEPS).fill(0))
+    const [cachedRoll, setCachedRoll] = useLocalStorage("roll", new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(0))
+    const [roll, setRoll, rollRef] = useRefState(new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(0))
 
     // effect that reads roll from local storage
     React.useEffect(() => {
@@ -65,7 +82,7 @@ const Roll = ({ model }) => {
     }, [roll])
             
 
-    const [mask, setMask] = React.useState([...new Array(nPitches * MODEL_TIMESTEPS).fill(1)])
+    const [mask, setMask] = React.useState([...new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(1)])
 
     const [nSteps, setNSteps] = React.useState(model.defaults.nSteps)
     const [temperature, setTemperature] = React.useState(model.defaults.temperature)
@@ -82,17 +99,8 @@ const Roll = ({ model }) => {
         exportMIDI(_.chunk(scaleToFull(roll, SCALE, MODEL_PITCHES, MODEL_TIMESTEPS), MODEL_TIMESTEPS), pitchOffset + MIN_NOTE, tempo)
     }
 
-    const [synthParameters, setSynthParameters] = React.useState({
-        oscillator: {
-            type: "sine"
-        },
-        envelope: {
-            attack: 0.01,
-            release: 0.05,
-            sustain: 0.5,
-        },
-        volume: -12
-    }
+    const [synthParameters, setSynthParameters] = React.useState(
+        defaultSynthParameters
     )
     const runGeneration = () => {
         setModelIsBusy(true)
@@ -121,7 +129,7 @@ const Roll = ({ model }) => {
     }
 
     const selectAll = () => {
-        setMask(new Array(nPitches * MODEL_TIMESTEPS).fill(1))
+        setMask(new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(1))
         setEditMode("select")
     }
 
@@ -136,7 +144,7 @@ const Roll = ({ model }) => {
     }
 
     const resetSelection = () => {
-        setMask(new Array(nPitches * MODEL_TIMESTEPS).fill(0))
+        setMask(new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(0))
     }
 
     React.useEffect(() => {
@@ -164,8 +172,8 @@ const Roll = ({ model }) => {
     let n_masked = mask.reduce((a, b) => a + b, 0)
     return (
         <div style={{ width: "100%", display: "flex", justifyContent: "space-evenly", marginTop: 16 }} >
-            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: "10vw" }}>
-            <Playlist postChangeCounter={postChangeCounter}></Playlist>
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: "20vw" }}>
+            <Playlist setLoop={setLoop} postChangeCounter={postChangeCounter} scale={SCALE} nPitches={N_SCALE_PITCHES} nTimesteps={MODEL_TIMESTEPS} timeStep={timeStep} mask={new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(1)} editMode={false} modelIsBusy={false} setMask={()=>{}} ></Playlist>
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
@@ -197,8 +205,8 @@ const Roll = ({ model }) => {
                     ></Toolbar>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-evenly", flexDirection: "row" }}>
-                    <RollView setTimeStep={setTimeStep} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode} modelIsBusy={modelIsBusy} scale={SCALE}></RollView>
-                    <Transport output={output} pitchOffset={pitchOffset} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={nPitches} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} synthParameters={synthParameters} isPlayingRef={isPlayingRef} ></Transport>
+                    <RollView setTimeStep={setTimeStep} nPitches={N_SCALE_PITCHES} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode} modelIsBusy={modelIsBusy} scale={SCALE}></RollView>
+                    <Transport output={output} pitchOffset={pitchOffset} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={N_SCALE_PITCHES} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} synthParameters={synthParameters} isPlayingRef={isPlayingRef} ></Transport>
                 </div >
             </div >
         </div >

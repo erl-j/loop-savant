@@ -2,16 +2,19 @@ import React from "react";
 import { db } from "./firebase.js";
 import { useLocalStorage } from "usehooks-ts";
 import {collection,doc,setDoc,getDoc,getDocs,query} from "firebase/firestore";
+import RollView from "./RollView.js";
 
-const Playlist = ({postChangeCounter}) => {
+const Playlist = ({postChangeCounter, setLoop, nPitches, nTimesteps, scale}) => {
 
     const [user, setUser] = useLocalStorage("user", null);
     const [loops, setLoops] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
 
     let userId = user.uid
 
     React.useEffect(() => {
         const getUserLoops = async () => {
+            setIsLoading(true);
             // get user ref
             const docRef = doc(db, "users", userId);
             const docSnap = await getDoc(docRef);
@@ -31,8 +34,9 @@ const Playlist = ({postChangeCounter}) => {
                 data.id = doc.id
                 return data
             }
-            )
+            );
             setLoops(newLoops)
+            setIsLoading(false);
         }
         getUserLoops()
     }, [postChangeCounter])
@@ -54,15 +58,19 @@ const Playlist = ({postChangeCounter}) => {
 
     return <div>
         <h1>Playlist</h1>
+       { isLoading ? <div>loading...</div> :
         <div style={{ display: "flex", flexDirection: "column"}}>
             {loops.length}
             {loops.map((loop) => 
                 <div key={loop.id}>
                     <h2>{loop.title}</h2>
                     <h3>{loop.bpm}</h3>
+                    <div onClick={() => setLoop(loop)}>
+                    <RollView nPitches={nPitches} scale={scale} nTimeSteps={nTimesteps} roll={loop.roll} pitchOffset={loop.pitchOffset} timeStep={0} mask={new Array(nPitches * nTimesteps).fill(1)} editMode={false} modelIsBusy={false} setMask={() => { }} setTimeStep={() => { }} setRoll={() => { }}></RollView>
+                    </div>
                 </div>
         )}
-        </div>
+        </div>}
     </div>
     }
 

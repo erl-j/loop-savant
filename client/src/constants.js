@@ -4,6 +4,8 @@ export const SCALE = [0, 2, 4, 5, 7, 9, 11]
 
 export const MIN_NOTE = 38;
 
+export const N_SCALE_PITCHES = (MODEL_PITCHES / 12) * SCALE.length
+
 export const MODEL_PARAMS = {
     "guillaume": {
         "path": "./guillaume4.onnx", "defaults": {
