@@ -9,6 +9,7 @@ import { Scale } from "tone";
 
 const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask, editMode, setTimeStep, modelIsBusy, scale }) => {
 
+
     if( mask === undefined) {
         mask = new Array(nPitches * nTimeSteps).fill(1)
     }
@@ -24,8 +25,6 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
     if (modelIsBusy === undefined) {
         modelIsBusy = false
     }
-    
-
 
     const pitchRange = Array.from(Array(nPitches).keys());
     const timeRange = Array.from(Array(nTimeSteps).keys());
@@ -86,10 +85,12 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
             newRoll[pitch * nTimeSteps + time] = editMode == "draw" ? 1 : 0;
             setRoll(newRoll);
         }
-    }
+    }  
 
-    let tileWidth = 36;
-    let tileHeight = 20;
+  
+
+
+
 
     const renderTile = (pitch, time) => {
 
@@ -115,13 +116,15 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
             }}
 
             style={{
-                width: tileWidth,
-                height: tileHeight,
+                boxSizing: "border-box",
+                width: "100%",
+                height: "100%",
                 margin: 0,
                 opacity: !isOn ?
                     (isAccent || isRoot ? 0.1 : 0.05) : 1.0,
                 backgroundColor: isSelected ? "teal" : "black",
                 border: isBeingPlayed ? "1px solid gray" : "1px solid darkgray",
+
                 transition: "transform 0.3s ease-out",
                 transform: (isBeingPlayed & isOn) ? "scale(1.1, 1.4)" : "scale(1.0, 1.0)",
                 animation: (isSelected && modelIsBusy) ? `pulse-animation ${0.5 + Math.random() * 3}s infinite alternate` : "none"
@@ -130,9 +133,9 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
         ></div >)
     }
 
-    const children = <div style={{ display: "flex", flexDirection: "column" }} >
+    const children = <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%",}}>
         {[...pitchRange.reverse(), "set_start"].map((pitch) =>
-            <div key={pitch} style={{ display: "flex", flexDirection: "row" }} >
+            <div key={pitch} style={{ display: "flex", flexDirection: "row", width: "100%", height: "100%",}}>
                 {timeRange.map((time) => {
                     return (pitch !== "set_start" ?
                         renderTile(pitch, time)
@@ -140,8 +143,9 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
                         <React.Fragment key={time}>
                             <div key={time} id={`set-start-${time}`}
                                 style={{
-                                    width: tileWidth,
-                                    height: tileHeight,
+                                    boxSizing: "border-box",
+                                    width: "100%",
+                                    height: "100%",
                                     margin: 0,
                                     border: "1px solid white",
                                     backgroundColor: "gray",
@@ -171,7 +175,7 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
 
     // div has keyboard events for mask mode
     return (
-        <div>
+        <div  style={{width:"100%", height:"100%"}}>
             {
                 editMode == "select" ? <SelectionArea
                     className="container"
@@ -180,7 +184,7 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
                     selectables=".selectable"
                 >
                     {children}
-                </SelectionArea> : <div>{children}</div>
+                </SelectionArea> : <div  style={{width:"100%", height:"100%"}}>{children}</div>
             }
         </div >)
 }

@@ -61,7 +61,7 @@ function App() {
   }
 
   return (
-    <div className="App" style={{ width: "100%" }}>
+    <div className="App" style={{ width: "100%", height:"100%" }}>
       {userHasValidAccessToken ?
       (isOn ? <Workspace model={model} />
         :

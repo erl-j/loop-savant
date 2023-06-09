@@ -13,6 +13,9 @@ code {
     monospace;
 }
 
+.container {
+  height: 100%;
+}
 
 .slider {
   -webkit-appearance: none;
