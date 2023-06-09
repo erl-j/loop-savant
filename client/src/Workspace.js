@@ -173,7 +173,7 @@ const Roll = ({ model }) => {
     return (
         <div style={{ width: "100%", display: "flex", justifyContent: "space-evenly", marginTop: 16 }} >
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: "20vw" }}>
-            <Playlist setLoop={setLoop} postChangeCounter={postChangeCounter} scale={SCALE} nPitches={N_SCALE_PITCHES} nTimesteps={MODEL_TIMESTEPS} timeStep={timeStep} mask={new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(1)} editMode={false} modelIsBusy={false} setMask={()=>{}} ></Playlist>
+            <Playlist  setPostChangeCounter={setPostChangeCounter} setLoop={setLoop} postChangeCounter={postChangeCounter} scale={SCALE} nPitches={N_SCALE_PITCHES} nTimesteps={MODEL_TIMESTEPS} timeStep={timeStep} mask={new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(1)} editMode={false} modelIsBusy={false} setMask={()=>{}} ></Playlist>
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>

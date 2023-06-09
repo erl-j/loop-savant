@@ -1,16 +1,26 @@
 import React from "react";
 import { db } from "./firebase.js";
 import { useLocalStorage } from "usehooks-ts";
-import {collection,doc,setDoc,getDoc,getDocs,query} from "firebase/firestore";
+import {collection,doc,setDoc,getDoc,getDocs,query,deleteDoc} from "firebase/firestore";
 import RollView from "./RollView.js";
 
-const Playlist = ({postChangeCounter, setLoop, nPitches, nTimesteps, scale}) => {
+const Playlist = ({postChangeCounter, setPostChangeCounter, setLoop, nPitches, nTimesteps, scale}) => {
 
     const [user, setUser] = useLocalStorage("user", null);
     const [loops, setLoops] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(true);
 
     let userId = user.uid
+
+    const deleteLoop = async (loop) => {
+        // remove loop from db
+        // loop is part of user's loops collection
+        const docRef = doc(db, "users", userId, "loops", loop.id);
+        await deleteDoc(docRef);
+        setPostChangeCounter(postChangeCounter + 1)
+        console.log("deleted")
+    }
+
 
     React.useEffect(() => {
         const getUserLoops = async () => {
@@ -35,6 +45,12 @@ const Playlist = ({postChangeCounter, setLoop, nPitches, nTimesteps, scale}) => 
                 return data
             }
             );
+
+            // sort loops by createdAt
+            newLoops.sort((a, b) => {
+                return b.createdAt.seconds - a.createdAt.seconds
+            })
+
             setLoops(newLoops)
             setIsLoading(false);
         }
@@ -65,7 +81,9 @@ const Playlist = ({postChangeCounter, setLoop, nPitches, nTimesteps, scale}) => 
                 <div key={loop.id}>
                     <h2>{loop.title}</h2>
                     <h3>{loop.bpm}</h3>
-                    <div onClick={() => setLoop(loop)}>
+                    <div>
+                    <button onClick={() => setLoop(loop)}>load</button>
+                    <button onClick={() => deleteLoop(loop)}>delete</button>
                     <RollView nPitches={nPitches} scale={scale} nTimeSteps={nTimesteps} roll={loop.roll} pitchOffset={loop.pitchOffset} timeStep={0} mask={new Array(nPitches * nTimesteps).fill(1)} editMode={false} modelIsBusy={false} setMask={() => { }} setTimeStep={() => { }} setRoll={() => { }}></RollView>
                     </div>
                 </div>
