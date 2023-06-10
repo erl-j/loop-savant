@@ -87,11 +87,6 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
         }
     }  
 
-  
-
-
-
-
     const renderTile = (pitch, time) => {
 
         let isSelected = mask[pitch * nTimeSteps + time] == 1;
@@ -124,7 +119,6 @@ const RollView = ({ nPitches, nTimeSteps, roll, setRoll, timeStep, mask, setMask
                     (isAccent || isRoot ? 0.1 : 0.05) : 1.0,
                 backgroundColor: isSelected ? "teal" : "black",
                 border: isBeingPlayed ? "1px solid gray" : "1px solid darkgray",
-
                 transition: "transform 0.3s ease-out",
                 transform: (isBeingPlayed & isOn) ? "scale(1.1, 1.4)" : "scale(1.0, 1.0)",
                 animation: (isSelected && modelIsBusy) ? `pulse-animation ${0.5 + Math.random() * 3}s infinite alternate` : "none"
