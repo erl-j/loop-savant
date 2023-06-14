@@ -1,9 +1,8 @@
 import * as _ from "lodash";
 import React from "react";
 import { useLocalStorage } from "usehooks-ts";
-import RollView from "./RollView";
 import Toolbar from "./Toolbar";
-import Transport from "./Transport";
+
 import {
     MIN_NOTE,
     MODEL_PITCHES, MODEL_TIMESTEPS, SCALE, N_SCALE_PITCHES,
@@ -15,7 +14,7 @@ import Playlist from "./Playlist";
 import { collection, doc, setDoc, getDoc, getDocs, query } from "firebase/firestore";
 import { db } from "./firebase.js";
 import { serverTimestamp } from "firebase/firestore";
-
+import Roll from "./Roll";
 
 const defaultSynthParameters = {
     oscillator: {
@@ -29,7 +28,7 @@ const defaultSynthParameters = {
     volume: -12
 }
 
-const Roll = ({ model }) => {
+const Workspace = ({ model }) => {
 
     const [user, setUser] = useLocalStorage("user", null);
 
@@ -51,20 +50,18 @@ const Roll = ({ model }) => {
     }
 
     const setLoop = (loop) => {
-        setRoll(loop.roll)
-        setPitchOffset(loop.pitchOffset)
-        setTempo(loop.bpm)
-        if (loop.synthParameters) {
-            setSynthParameters(loop.synthParameters)
-        }
-        else {
-            setSynthParameters(defaultSynthParameters)
-        }
+            setRoll(loop.roll)
+            setPitchOffset(loop.pitchOffset)
+            setTempo(loop.bpm)
+            if (loop.synthParameters) {
+                setSynthParameters(loop.synthParameters)
+            }
+            else {
+                setSynthParameters(defaultSynthParameters)
+            }
     }
 
-
     const [isPlaying, setIsPlaying, isPlayingRef] = useRefState(true)
-    const [timeStep, setTimeStep, timeStepRef] = useRefState(0)
 
     const [cachedRoll, setCachedRoll] = useLocalStorage("roll", new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(0))
     const [roll, setRoll, rollRef] = useRefState(new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(0))
@@ -173,7 +170,7 @@ const Roll = ({ model }) => {
     return (
         <div style={{ display: "flex", justifyContent: "space-evenly", height:"90%", flexDirection: "row", width:"100%" }} >
             <div style={{ width:"22%"}}>
-                <Playlist setPostChangeCounter={setPostChangeCounter} setLoop={setLoop} postChangeCounter={postChangeCounter} scale={SCALE} nPitches={N_SCALE_PITCHES} nTimesteps={MODEL_TIMESTEPS} timeStep={timeStep} mask={new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(1)} editMode={false} modelIsBusy={false} setMask={() => { }} ></Playlist>
+                <Playlist setPostChangeCounter={setPostChangeCounter} setLoop={setLoop} postChangeCounter={postChangeCounter} scale={SCALE} nPitches={N_SCALE_PITCHES} nTimesteps={MODEL_TIMESTEPS} ></Playlist>
             </div>
             <div style={{ display: "flex", flexDirection: "column", height:"100%", width:"74%" }}>
                 <div>
@@ -205,8 +202,7 @@ const Roll = ({ model }) => {
                     ></Toolbar>
                 </div>
                 <div style={{ flex: 2 }} >
-                    <RollView setTimeStep={setTimeStep} nPitches={N_SCALE_PITCHES} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} timeStep={timeStep} mask={mask} setMask={setMask} editMode={editMode} modelIsBusy={modelIsBusy} scale={SCALE}></RollView>
-                    <Transport output={output} pitchOffset={pitchOffset} timeStepRef={timeStepRef} rollRef={rollRef} nPitches={N_SCALE_PITCHES} nTimeSteps={MODEL_TIMESTEPS} scale={SCALE} setTimeStep={setTimeStep} tempo={tempo} synthParameters={synthParameters} isPlayingRef={isPlayingRef} ></Transport>
+                    <Roll setMask={setMask} editMode={editMode} rollRef={rollRef} pitchOffset={pitchOffset}  nPitches={N_SCALE_PITCHES} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} mask={mask} scale={SCALE} modelIsBusy={modelIsBusy} tempo={tempo} synthParameters={synthParameters} isPlayingRef={isPlayingRef} output={output}></Roll>
                 </div>
             </div >
         </div >
@@ -214,4 +210,4 @@ const Roll = ({ model }) => {
 
 }
 
-export default Roll;
+export default Workspace;

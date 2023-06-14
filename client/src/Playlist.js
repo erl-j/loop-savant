@@ -84,7 +84,7 @@ const Playlist = ({postChangeCounter, setPostChangeCounter, setLoop, nPitches, n
                     <div>
                     <button onClick={() => setLoop(loop)}>load</button>
                     <button onClick={() => deleteLoop(loop)}>delete</button>
-                    {/* <RollView nPitches={nPitches} scale={scale} nTimeSteps={nTimesteps} roll={loop.roll} pitchOffset={loop.pitchOffset} timeStep={0} mask={new Array(nPitches * nTimesteps).fill(1)} editMode={false} modelIsBusy={false} setMask={() => { }} setTimeStep={() => { }} setRoll={() => { }}></RollView> */}
+                    <RollView nPitches={nPitches} scale={scale} nTimeSteps={nTimesteps} roll={loop.roll} pitchOffset={loop.pitchOffset} timeStep={0} mask={new Array(nPitches * nTimesteps).fill(1)} editMode={false} modelIsBusy={false} setMask={() => { }} setTimeStep={() => { }} setRoll={() => { }}></RollView>
                     </div>
                 </div>
         )}
