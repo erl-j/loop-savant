@@ -358,7 +358,7 @@ export default RollView;
 const RollPreview = ({ nPitches, nTimeSteps, roll, scale, }) => {
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", width:200, height:100}}>
+        <div style={{ display: "flex", flexDirection: "column", width:"100%"}}>
             {[...Array(nPitches).keys()].reverse().map((pitch) =>
                 <div key={pitch} style={{ display: "flex", flexDirection: "row", width: "100%", height: "100%" }}>
                     {[...Array(nTimeSteps).keys()].map((time) => 

@@ -15,6 +15,7 @@ import { collection, doc, setDoc, getDoc, getDocs, query } from "firebase/firest
 import { db } from "./firebase.js";
 import { serverTimestamp } from "firebase/firestore";
 import Roll from "./Roll";
+import { generateRandomName } from "./words";
 
 const defaultSynthParameters = {
     oscillator: {
@@ -35,12 +36,11 @@ const Workspace = ({ model }) => {
     const [postChangeCounter, setPostChangeCounter] = React.useState(0)
 
     const saveLoop = async () => {
-        let randomName = Math.random().toString(36).substring(7);
         let loopObject = {
             roll: roll,
             pitchOffset: pitchOffset,
             bpm: tempo,
-            title: randomName,
+            title: title,
             createdAt: serverTimestamp(),
             synthParameters: synthParameters
         }
@@ -50,35 +50,23 @@ const Workspace = ({ model }) => {
     }
 
     const setLoop = (loop) => {
-            setRoll(loop.roll)
-            setPitchOffset(loop.pitchOffset)
-            setTempo(loop.bpm)
-            if (loop.synthParameters) {
-                setSynthParameters(loop.synthParameters)
-            }
-            else {
-                setSynthParameters(defaultSynthParameters)
-            }
+        setRoll(loop.roll)
+        setPitchOffset(loop.pitchOffset)
+        setTempo(loop.bpm)
+        if (loop.synthParameters) {
+            setSynthParameters(loop.synthParameters)
+        }
+        else {
+            setSynthParameters(defaultSynthParameters)
+        }
+        setTitle(loop.title)
     }
 
     const [isPlaying, setIsPlaying, isPlayingRef] = useRefState(true)
 
-    const [cachedRoll, setCachedRoll] = useLocalStorage("roll", new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(0))
+    const [cachedLoop, setCachedLoop] = useLocalStorage("loop", undefined)
     const [roll, setRoll, rollRef] = useRefState(new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(0))
-
-    // effect that reads roll from local storage
-    React.useEffect(() => {
-        if (cachedRoll) {
-            setRoll(cachedRoll)
-        }
-    }, [])
-
-
-    React.useEffect(() => {
-        setCachedRoll(roll)
-    }, [roll])
-
-
+    const [title, setTitle] = React.useState("Untitled")
     const [mask, setMask] = React.useState([...new Array(N_SCALE_PITCHES * MODEL_TIMESTEPS).fill(1)])
 
     const [nSteps, setNSteps] = React.useState(model.defaults.nSteps)
@@ -90,15 +78,40 @@ const Workspace = ({ model }) => {
     const [tempo, setTempo] = React.useState(160)
     const [pitchOffset, setPitchOffset] = React.useState(0)
     const [modelIsBusy, setModelIsBusy] = React.useState(false)
+    const [synthParameters, setSynthParameters] = React.useState(
+        defaultSynthParameters
+    )
 
+      // effect that reads roll from local storage
+      React.useEffect(() => {
+        if(cachedLoop){
+            setRoll(cachedLoop.roll)
+            setPitchOffset(cachedLoop.pitchOffset)
+            setTempo(cachedLoop.bpm)
+            setTitle(cachedLoop.title)
+            if (cachedLoop.synthParameters) {
+                setSynthParameters(cachedLoop.synthParameters)
+            }
+            else {
+                setSynthParameters(defaultSynthParameters)
+            }
+        }
+    }, [])
+
+    React.useEffect(() => {
+            setCachedLoop({
+                roll: roll,
+                pitchOffset: pitchOffset,
+                title: title,
+                bpm: tempo,
+                synthParameters: synthParameters
+            })
+    }, [roll, pitchOffset, tempo, title, synthParameters])
 
     const exportRollAsMIDI = () => {
         exportMIDI(_.chunk(scaleToFull(roll, SCALE, MODEL_PITCHES, MODEL_TIMESTEPS), MODEL_TIMESTEPS), pitchOffset + MIN_NOTE, tempo)
     }
 
-    const [synthParameters, setSynthParameters] = React.useState(
-        defaultSynthParameters
-    )
     const runGeneration = () => {
         setModelIsBusy(true)
         console.log("running generation")
@@ -168,12 +181,14 @@ const Workspace = ({ model }) => {
 
     let n_masked = mask.reduce((a, b) => a + b, 0)
     return (
-        <div style={{ display: "flex", justifyContent: "space-evenly", height:"90%", flexDirection: "row", width:"100%" }} >
-            <div style={{ width:"22%"}}>
+        <div style={{ display: "flex", justifyContent: "space-evenly", height: "90%", flexDirection: "row", width: "100%" }} >
+            <div style={{ width: "22%" }}>
                 <Playlist setPostChangeCounter={setPostChangeCounter} setLoop={setLoop} postChangeCounter={postChangeCounter} scale={SCALE} nPitches={N_SCALE_PITCHES} nTimesteps={MODEL_TIMESTEPS} ></Playlist>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", height:"100%", width:"74%" }}>
+            <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "74%" }}>
                 <div>
+                    {/* editable title */}
+                    <input style={{ fontSize: "1.5em", width: "100%" }} value={title} onChange={(e) => setTitle(e.target.value)}></input>
                     <Toolbar editMode={editMode} setEditMode={setEditMode}
                         nSteps={nSteps} setNSteps={setNSteps}
                         temperature={temperature} setTemperature={setTemperature}
@@ -202,7 +217,7 @@ const Workspace = ({ model }) => {
                     ></Toolbar>
                 </div>
                 <div style={{ flex: 2 }} >
-                    <Roll setMask={setMask} editMode={editMode} rollRef={rollRef} pitchOffset={pitchOffset}  nPitches={N_SCALE_PITCHES} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} mask={mask} scale={SCALE} modelIsBusy={modelIsBusy} tempo={tempo} synthParameters={synthParameters} isPlayingRef={isPlayingRef} output={output}></Roll>
+                    <Roll setMask={setMask} editMode={editMode} rollRef={rollRef} pitchOffset={pitchOffset} nPitches={N_SCALE_PITCHES} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} mask={mask} scale={SCALE} modelIsBusy={modelIsBusy} tempo={tempo} synthParameters={synthParameters} isPlayingRef={isPlayingRef} output={output}></Roll>
                 </div>
             </div >
         </div >
