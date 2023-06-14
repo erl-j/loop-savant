@@ -2,7 +2,7 @@ import React from "react";
 import { db } from "./firebase.js";
 import { useLocalStorage } from "usehooks-ts";
 import {collection,doc,setDoc,getDoc,getDocs,query,deleteDoc} from "firebase/firestore";
-import RollView from "./RollView.js";
+import {RollPreview} from "./RollView.js";
 
 const Playlist = ({postChangeCounter, setPostChangeCounter, setLoop, nPitches, nTimesteps, scale}) => {
 
@@ -71,6 +71,7 @@ const Playlist = ({postChangeCounter, setPostChangeCounter, setLoop, nPitches, n
         getUsername()
     }, [])
 
+    const mask = new Array(nPitches * nTimesteps).fill(1)
 
     return <div>
         <h1>Playlist</h1>
@@ -84,7 +85,7 @@ const Playlist = ({postChangeCounter, setPostChangeCounter, setLoop, nPitches, n
                     <div>
                     <button onClick={() => setLoop(loop)}>load</button>
                     <button onClick={() => deleteLoop(loop)}>delete</button>
-                    <RollView nPitches={nPitches} scale={scale} nTimeSteps={nTimesteps} roll={loop.roll} pitchOffset={loop.pitchOffset} timeStep={0} mask={new Array(nPitches * nTimesteps).fill(1)} editMode={false} modelIsBusy={false} setMask={() => { }} setTimeStep={() => { }} setRoll={() => { }}></RollView>
+                    <RollPreview nPitches={nPitches} scale={scale} nTimeSteps={nTimesteps} roll={loop.roll}></RollPreview>
                     </div>
                 </div>
         )}
