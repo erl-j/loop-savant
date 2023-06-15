@@ -3,6 +3,8 @@ import { db } from "./firebase.js";
 import { useLocalStorage } from "usehooks-ts";
 import {collection,doc,setDoc,getDoc,getDocs,query,deleteDoc} from "firebase/firestore";
 import {RollPreview} from "./RollView.js";
+import Autoupdating from "./Autoupdating.js";
+import {unixtimestampToHumanReadableTimeAgo} from "./utils.js";
 
 const Playlist = ({postChangeCounter, setPostChangeCounter, setLoop, nPitches, nTimesteps, scale}) => {
 
@@ -71,8 +73,6 @@ const Playlist = ({postChangeCounter, setPostChangeCounter, setLoop, nPitches, n
         getUsername()
     }, [])
 
-    const mask = new Array(nPitches * nTimesteps).fill(1)
-
     return <div>
         <h1>Playlist</h1>
        { isLoading ? <div>loading...</div> :
@@ -81,6 +81,8 @@ const Playlist = ({postChangeCounter, setPostChangeCounter, setLoop, nPitches, n
                 <div key={loop.id}>
                     <h2>{loop.title}</h2>
                     <h3>{loop.bpm}</h3>
+                    <h3>{loop.pitchOffset}</h3>
+                    <Autoupdating renderFunction={time=> <h3>{unixtimestampToHumanReadableTimeAgo(time)}</h3>} timestamp={loop.createdAt.seconds} updateInterval={60*1000}></Autoupdating>
                     <div>
                     <button onClick={() => setLoop(loop)}>load</button>
                     <button onClick={() => deleteLoop(loop)}>delete</button>
