@@ -182,10 +182,10 @@ const Workspace = ({ model }) => {
     let n_masked = mask.reduce((a, b) => a + b, 0)
     return (
         <div style={{ display: "flex", justifyContent: "space-evenly", height: "90%", flexDirection: "row", width: "100%" }} >
-            <div style={{ width: "20%" }}>
+            <div style={{ width: "25%" }}>
                 <Playlist setPostChangeCounter={setPostChangeCounter} setLoop={setLoop} postChangeCounter={postChangeCounter} scale={SCALE} nPitches={N_SCALE_PITCHES} nTimesteps={MODEL_TIMESTEPS} ></Playlist>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "79%" }}>
+            <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "70%" }}>
                 <div>
                     {/* editable title */}
                     <Toolbar editMode={editMode} setEditMode={setEditMode}
@@ -217,7 +217,7 @@ const Workspace = ({ model }) => {
                         setTitle={setTitle}
                     ></Toolbar>
                 </div>
-                <div style={{ flex: 2 }} >
+                <div style={{ aspectRatio:"5 / 3", width:"70%"}} >
                     <Roll setMask={setMask} editMode={editMode} rollRef={rollRef} pitchOffset={pitchOffset} nPitches={N_SCALE_PITCHES} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} mask={mask} scale={SCALE} modelIsBusy={modelIsBusy} tempo={tempo} synthParameters={synthParameters} isPlayingRef={isPlayingRef} output={output}></Roll>
                 </div>
             </div >

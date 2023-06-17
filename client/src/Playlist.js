@@ -84,7 +84,7 @@ const Playlist = ({postChangeCounter, setPostChangeCounter, setLoop, nPitches, n
                     <Autoupdating renderFunction={time=> <h3>{unixtimestampToHumanReadableTimeAgo(time)}</h3>} timestamp={loop.createdAt.seconds} updateInterval={60*1000}></Autoupdating>
                     <button onClick={() => setLoop(loop)}>load</button>
                     <button onClick={() => deleteLoop(loop)}>delete</button>
-                    <div style={{height:128, margin:8}}>
+                    <div style={{width:200,aspectRatio:5/3, margin:8}}>
                     <RollPreview nPitches={nPitches} scale={scale} nTimeSteps={nTimesteps} roll={loop.roll}></RollPreview>
                     </div>
                 </div>
