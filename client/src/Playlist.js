@@ -74,9 +74,8 @@ const Playlist = ({postChangeCounter, setPostChangeCounter, setLoop, nPitches, n
     }, [])
 
     return <div>
-        <h1>Playlist</h1>
        { isLoading ? <div>loading...</div> :
-        <div style={{ display: "flex", flexDirection: "column",maxHeight:"80vh", overflow:"scroll" }}>
+        <div style={{ display: "flex", flexDirection: "column",maxHeight:"100vh", overflow:"scroll" }}>
             {loops.map((loop) => 
                 <div key={loop.id} style={{border:"1px solid black", margin:8}}>
                     {/* <h2>{loop.title}</h2>
