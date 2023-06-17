@@ -78,14 +78,14 @@ const Playlist = ({postChangeCounter, setPostChangeCounter, setLoop, nPitches, n
        { isLoading ? <div>loading...</div> :
         <div style={{ display: "flex", flexDirection: "column",maxHeight:"80vh", overflow:"scroll" }}>
             {loops.map((loop) => 
-                <div key={loop.id}>
-                    <h2>{loop.title}</h2>
+                <div key={loop.id} style={{border:"1px solid black", margin:8}}>
+                    {/* <h2>{loop.title}</h2>
                     <h3>{loop.bpm}</h3>
-                    <h3>{loop.pitchOffset}</h3>
+                    <h3>{loop.pitchOffset}</h3> */}
                     <Autoupdating renderFunction={time=> <h3>{unixtimestampToHumanReadableTimeAgo(time)}</h3>} timestamp={loop.createdAt.seconds} updateInterval={60*1000}></Autoupdating>
-                    <div>
                     <button onClick={() => setLoop(loop)}>load</button>
                     <button onClick={() => deleteLoop(loop)}>delete</button>
+                    <div style={{height:128, margin:8}}>
                     <RollPreview nPitches={nPitches} scale={scale} nTimeSteps={nTimesteps} roll={loop.roll}></RollPreview>
                     </div>
                 </div>

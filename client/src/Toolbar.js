@@ -79,39 +79,40 @@ const Toolbar = ({
         { value: 'sawtooth', label: 'sawtooth' },
     ]
 
+    const globalBar = <div style={{ display: "flex", flexDirection: "row", width: "100%", justifyContent: "space-between" }}>
+         <ToolbarButton text="like" icon={<FaHeart></FaHeart>} onActivate={saveLoop} />
+        <ToolbarButton text="export MIDI" icon={<FaDownload></FaDownload>} keyboardCharacter={"p"} onActivate={exportRollAsMIDI} />
+        <Range label="tempo" displayValue={tempo + "bpm"} description="set tempo in bpm" type="range" min="30" max="300" step="1" value={tempo} onChange={(e) => setTempo(e)}></Range>
+        <Range label="pitch" displayValue={pitchOffset > 0 ? "+" + pitchOffset : pitchOffset} description="transpose output" type="range" min="-24" max="24" step="1" value={pitchOffset} onChange={(e) => setPitchOffset(e)}></Range>
+       
+        <ToolbarButton text={isPlaying ? "stop" : "play"}
+         icon={isPlaying ? <FaSquare></FaSquare> : <FaPlay></FaPlay>} keyboardCharacter={"space"} onActivate={() => setIsPlaying(!isPlaying)} />
+    </div>
+
+    const editingButtons =  <div style={{ display: "flex", flexDirection: "row", width: "100%", justifyContent:"space-between"}}>
+    <div>
+        <ToolbarButton text="draw tool" icon={<FaPencilAlt></FaPencilAlt>} keyboardCharacter="d" onActivate={() => setEditMode("draw")} isActive={editMode == "draw"} />
+        <ToolbarButton text="erase tool" icon={<FaEraser></FaEraser>} keyboardCharacter="e" onActivate={() => setEditMode("erase")} isActive={editMode == "erase"} />
+    </div>
+    <div>
+        <ToolbarButton text="select tool" icon={<BiSelection></BiSelection>} keyboardCharacter="s" onActivate={() => setEditMode("select")} isActive={editMode == "select"} />
+        <ToolbarButton text="select all" icon={<AiOutlineFullscreen></AiOutlineFullscreen>} keyboardCharacter="a" onActivate={selectAll} />
+        <ToolbarButton text="delete selected notes" icon={<FaTrashAlt></FaTrashAlt>} keyboardCharacter="Backspace" onActivate={deleteSelection} disabled={!transformsAreAvailable} />
+        <ToolbarButton text="invert selection" icon={<FaAdjust></FaAdjust>} keyboardCharacter="i" onActivate={invertSelection} />
+    </div>
+    <div>
+        <ToolbarButton text="generation" icon={<FaMagic></FaMagic>} keyboardCharacter="g" onActivate={runGeneration} disabled={!transformsAreAvailable} />
+        <ToolbarButton text="variation" icon={<FaDna></FaDna>} keyboardCharacter="v" onActivate={() => runVariation("all")} disabled={!transformsAreAvailable} />
+        <ToolbarButton text="sparser" icon={<FaMinus></FaMinus>} keyboardCharacter="n" onActivate={() => runVariation("sparser")} disabled={!transformsAreAvailable} />
+        <ToolbarButton text="denser" icon={<FaPlus></FaPlus>} keyboardCharacter="m" onActivate={() => runVariation("denser")} disabled={!transformsAreAvailable} />
+    </div>
+</div>
     return (
         <div style={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", marginBottom: 32 }} >
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-start", width: "40%" }}>
-                <h1>Loop Savant</h1>
+                {globalBar}
                 {!firstGenerationIsDone ? <span style={{ animation: "glow 1s linear infinite" }}>To start, press <b>a</b> (select all) followed by <b>g</b> (generate)</span> : ""}
-                <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
-                    <div>
-                        <h4>Draw</h4>
-                        <ToolbarButton text="draw tool" icon={<FaPencilAlt></FaPencilAlt>} keyboardCharacter="d" onActivate={() => setEditMode("draw")} isActive={editMode == "draw"} />
-                        <ToolbarButton text="erase tool" icon={<FaEraser></FaEraser>} keyboardCharacter="e" onActivate={() => setEditMode("erase")} isActive={editMode == "erase"} />
-                    </div>
-                    <div>
-                        <h4>Select</h4>
-                        <ToolbarButton text="select tool" icon={<BiSelection></BiSelection>} keyboardCharacter="s" onActivate={() => setEditMode("select")} isActive={editMode == "select"} />
-                        <ToolbarButton text="select all" icon={<AiOutlineFullscreen></AiOutlineFullscreen>} keyboardCharacter="a" onActivate={selectAll} />
-                        <ToolbarButton text="delete selected notes" icon={<FaTrashAlt></FaTrashAlt>} keyboardCharacter="Backspace" onActivate={deleteSelection} disabled={!transformsAreAvailable} />
-                        <ToolbarButton text="invert selection" icon={<FaAdjust></FaAdjust>} keyboardCharacter="i" onActivate={invertSelection} />
-                    </div>
-                    <div>
-                        <h4>Transform</h4>
-                        <ToolbarButton text="generation" icon={<FaMagic></FaMagic>} keyboardCharacter="g" onActivate={runGeneration} disabled={!transformsAreAvailable} />
-                        <ToolbarButton text="variation" icon={<FaDna></FaDna>} keyboardCharacter="v" onActivate={() => runVariation("all")} disabled={!transformsAreAvailable} />
-                        <ToolbarButton text="sparser" icon={<FaMinus></FaMinus>} keyboardCharacter="n" onActivate={() => runVariation("sparser")} disabled={!transformsAreAvailable} />
-                        <ToolbarButton text="denser" icon={<FaPlus></FaPlus>} keyboardCharacter="m" onActivate={() => runVariation("denser")} disabled={!transformsAreAvailable} />
-                    </div>
-                    <div>
-                        <h4>File</h4>
-                        <ToolbarButton text="like" icon={<FaHeart></FaHeart>} onActivate={saveLoop} />
-                        <ToolbarButton text="export MIDI" icon={<FaDownload></FaDownload>} keyboardCharacter={"p"} onActivate={exportRollAsMIDI} />
-                        <ToolbarButton text={isPlaying ? "stop" : "play"}
-                         icon={isPlaying ? <FaSquare></FaSquare> : <FaPlay></FaPlay>} keyboardCharacter={"space"} onActivate={() => setIsPlaying(!isPlaying)} />
-                    </div>
-                </div>
+                {editingButtons}
             </div >
             <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: "60%" }}>
                 <div style={{ width: "22%" }}>
@@ -135,8 +136,7 @@ const Toolbar = ({
 
                 <div style={{ width: "22%" }}>
                     <h4>Playback</h4>
-                    <Range label="tempo" displayValue={tempo + "bpm"} description="set tempo in bpm" type="range" min="30" max="300" step="1" value={tempo} onChange={(e) => setTempo(e)}></Range>
-                    <Range label="pitch" displayValue={pitchOffset > 0 ? "+" + pitchOffset : pitchOffset} description="transpose output" type="range" min="-24" max="24" step="1" value={pitchOffset} onChange={(e) => setPitchOffset(e)}></Range>
+                    
                     {midiOutputs.length > 0 &&
                         <DropDown label="output" options={midiOptions} value={output} onChange={(e) => setOutput(e)}></DropDown>
                     }
