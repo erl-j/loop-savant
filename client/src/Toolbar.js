@@ -40,7 +40,8 @@ const Toolbar = ({
     setIsPlaying,
     saveLoop,
     title,
-    setTitle
+    setTitle,
+    rollComponent
 }) => {
 
     const [midiOutputs, setMidiOutputs] = React.useState([])
@@ -164,7 +165,13 @@ const Toolbar = ({
                 </>
             </div>
             {/* {!firstGenerationIsDone ? <span style={{ animation: "glow 1s linear infinite" }}>To start, press <b>a</b> (select all) followed by <b>g</b> (generate)</span> : ""} */}
+            <div style={{ width: "70%" }}>
             {editingButtons}
+
+            <div style={{ aspectRatio:"5 / 3",width:"100%"}} >
+            {rollComponent}
+            </div>
+            </div>
         </div >
 
     )

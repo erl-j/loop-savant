@@ -215,11 +215,12 @@ const Workspace = ({ model }) => {
                         saveLoop={saveLoop}
                         title={title}
                         setTitle={setTitle}
+                        rollComponent={ <Roll setMask={setMask} editMode={editMode} rollRef={rollRef} pitchOffset={pitchOffset} nPitches={N_SCALE_PITCHES} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} mask={mask} scale={SCALE} modelIsBusy={modelIsBusy} tempo={tempo} synthParameters={synthParameters} isPlayingRef={isPlayingRef} output={output}></Roll>}
                     ></Toolbar>
                 </div>
-                <div style={{ aspectRatio:"5 / 3", width:"70%"}} >
-                    <Roll setMask={setMask} editMode={editMode} rollRef={rollRef} pitchOffset={pitchOffset} nPitches={N_SCALE_PITCHES} nTimeSteps={MODEL_TIMESTEPS} roll={roll} setRoll={setRoll} mask={mask} scale={SCALE} modelIsBusy={modelIsBusy} tempo={tempo} synthParameters={synthParameters} isPlayingRef={isPlayingRef} output={output}></Roll>
-                </div>
+                {/* <div style={{ aspectRatio:"5 / 3", width:"70%"}} >
+                   
+                </div> */}
             </div >
         
         </div >
