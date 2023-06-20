@@ -182,9 +182,9 @@ const Workspace = ({ model }) => {
     let n_masked = mask.reduce((a, b) => a + b, 0)
     return (
         <div style={{ display: "flex", justifyContent: "space-evenly", height: "90%", flexDirection: "row", width: "100%" }} >
-            <div style={{ width: "25%" }}>
+            {/* <div style={{ width: "25%" }}>
                 <Playlist setPostChangeCounter={setPostChangeCounter} setLoop={setLoop} postChangeCounter={postChangeCounter} scale={SCALE} nPitches={N_SCALE_PITCHES} nTimesteps={MODEL_TIMESTEPS} ></Playlist>
-            </div>
+            </div> */}
             <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "70%" }}>
                 <div>
                     {/* editable title */}

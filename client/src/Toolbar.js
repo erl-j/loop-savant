@@ -8,6 +8,7 @@ import DropDown from './Generics/DropDown';
 import "./index.css";
 import Range from './Generics/Range';
 import ToolbarButton from './ToolbarButton';
+import XYController from './XYController';
 
 const Toolbar = ({
     setEditMode,
@@ -112,16 +113,7 @@ const Toolbar = ({
             </div>
             <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
                 <div style={{ width: "22%" }}>
-                    {/* <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                        <input type="checkbox" checked={isAvancedMode} onChange={(e) => setIsAdvancedMode(e.target.checked)}></input>
-                    </div> */}
-                    {isAvancedMode &&
-                        <>
-                            <Range label="# steps" description="set tempo in bpm" type="range" min="1" max="30" step="1" value={nSteps} onChange={(e) => setNSteps(e)}></Range>
-                            <Range label="temp." displayValue={temperature.toFixed(2)} description="set temperature" type="range" min="0.0" max="2.0" step="0.01" value={temperature} onChange={(e) => setTemperature(e)}></Range>
-                            <Range label="activity" displayValue={activityBias.toFixed(2)} description="set activity bias" type="range" min="-2.0" max="2.0" step="0.01" value={activityBias} onChange={(e) => setActivityBias(e)}></Range>
-                        </>
-                    }
+          
                 </div>
 
                 {/* <div>
@@ -164,13 +156,32 @@ const Toolbar = ({
                     </div>
                 </>
             </div>
-            {/* {!firstGenerationIsDone ? <span style={{ animation: "glow 1s linear infinite" }}>To start, press <b>a</b> (select all) followed by <b>g</b> (generate)</span> : ""} */}
-            <div style={{ width: "70%" }}>
-            {editingButtons}
+            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
+                {/* {!firstGenerationIsDone ? <span style={{ animation: "glow 1s linear infinite" }}>To start, press <b>a</b> (select all) followed by <b>g</b> (generate)</span> : ""} */}
+                <div style={{ width: "70%" }}>
+                    {editingButtons}
+                    <div style={{ aspectRatio: "5 / 3", width: "100%" }} >
+                        {rollComponent}
+                    </div>
 
-            <div style={{ aspectRatio:"5 / 3",width:"100%"}} >
-            {rollComponent}
-            </div>
+                </div>
+                <div style={{ width: "30vw" }}>
+                {isAvancedMode &&
+                        <>
+                            <Range label="# steps" description="set number of steps" type="range" min="1" max="30" step="1" value={nSteps} onChange={(e) => setNSteps(e)}></Range>
+                            {/* <Range label="temp." displayValue={temperature.toFixed(2)} description="set temperature" type="range" min="0.0" max="2.0" step="0.01" value={temperature} onChange={(e) => setTemperature(e)}></Range>
+                            <Range label="activity" displayValue={activityBias.toFixed(2)} description="set activity bias" type="range" min="-2.0" max="2.0" step="0.01" value={activityBias} onChange={(e) => setActivityBias(e)}></Range> */}
+                            <div style={{width:"100%",height:"30vh"}}>
+                            <XYController setX={setActivityBias} setY={setTemperature} xValue={activityBias} yValue={temperature} xSettings={{min:0.0, max:2.0, step:0.01}} ySettings={{min:-2.0, max:2.0, step:0.01}}></XYController>
+                            </div>
+                        </>
+                    }
+                    {/* <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        <input type="checkbox" checked={isAvancedMode} onChange={(e) => setIsAdvancedMode(e.target.checked)}></input>
+                    </div> */}
+
+                    
+                </div>
             </div>
         </div >
 
