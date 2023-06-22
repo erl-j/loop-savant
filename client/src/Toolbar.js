@@ -46,7 +46,6 @@ const Toolbar = ({
 }) => {
 
     const [midiOutputs, setMidiOutputs] = React.useState([])
-    const [isAvancedMode, setIsAdvancedMode] = React.useState(true)
     const [firstGenerationIsDone, setFirstGenerationIsDone] = React.useState(false)
 
     React.useEffect(() => {
@@ -106,83 +105,60 @@ const Toolbar = ({
     </div>
     return (
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
+            {/* {!firstGenerationIsDone ? <span style={{ animation: "glow 1s linear infinite" }}>To start, press <b>a</b> (select all) followed by <b>g</b> (generate)</span> : ""} */}
             <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
                 <ToolbarButton text="like" icon={<FaHeart></FaHeart>} onActivate={saveLoop} />
                 <ToolbarButton text="export MIDI" icon={<FaDownload></FaDownload>} keyboardCharacter={"p"} onActivate={exportRollAsMIDI} />
                 <input style={{ fontSize: "1.5em", width: "100%" }} value={title} onChange={(e) => setTitle(e.target.value)}></input>
             </div>
             <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
-                <div style={{ width: "22%" }}>
-          
-                </div>
-
-                {/* <div>
-                    <input type="range" min="0.05" max="1.0" step="0.01" value={variationStrength} onChange={(e) => setVariationStrength(e)}></input>
-                    <span>variationStrength: {variationStrength.toFixed(2)}</span>
-                </div> */}
-
-                <div style={{ width: "22%" }}>
-                    {midiOutputs.length > 0 &&
-                        <DropDown label="output" options={midiOptions} value={output} onChange={(e) => setOutput(e)}></DropDown>
-                    }
-                </div>
-                <>
-                    <div style={{ width: "22%", display: output !== "built-in" ? "none" : "" }}>
-                        <DropDown label="waveform" value={synthParameters.oscillator.type} options={waveformOptions} onChange={(value) => {
-                            setSynthParameters({
-                                ...synthParameters, oscillator: { ...synthParameters.oscillator, type: value }
-                            })
-                        }
-                        } />
-
-                        <Range label="attack" min={0.01} max={1} step={0.01} value={synthParameters.envelope.attack} onChange={(value) => {
-                            setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, attack: value } })
-                        }} />
-                        <Range label="sustain" min={0.01} max={1} step={0.01} value={synthParameters.envelope.sustain} onChange={(value) => {
-                            setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, sustain: value } })
-                        }} />
-                    </div>
-                    <div style={{ width: "22%", display: output !== "built-in" ? "none" : "" }}>
-                        <Range label="volume" min={-20} max={0} step={0.01} value={synthParameters.volume} onChange={(value) => {
-                            setSynthParameters({ ...synthParameters, volume: value })
-                        }} />
-                        <Range label="decay" min={0.01} max={1} step={0.01} value={synthParameters.envelope.decay} onChange={(value) => {
-                            setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, decay: value } })
-                        }} />
-                        <Range label="release" min={0.01} max={1} step={0.01} value={synthParameters.envelope.release} onChange={(value) => {
-                            setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, release: value } })
-                        }} />
-
-                    </div>
-                </>
             </div>
             <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
-                {/* {!firstGenerationIsDone ? <span style={{ animation: "glow 1s linear infinite" }}>To start, press <b>a</b> (select all) followed by <b>g</b> (generate)</span> : ""} */}
                 <div style={{ width: "70%" }}>
                     {editingButtons}
                     <div style={{ aspectRatio: "5 / 3", width: "100%" }} >
                         {rollComponent}
                     </div>
-
                 </div>
-                <div style={{ width: "30vw" }}>
-                {isAvancedMode &&
-                        <>
-                            <Range label="# steps" description="set number of steps" type="range" min="1" max="30" step="1" value={nSteps} onChange={(e) => setNSteps(e)}></Range>
-                            {/* <Range label="temp." displayValue={temperature.toFixed(2)} description="set temperature" type="range" min="0.0" max="2.0" step="0.01" value={temperature} onChange={(e) => setTemperature(e)}></Range>
-                            <Range label="activity" displayValue={activityBias.toFixed(2)} description="set activity bias" type="range" min="-2.0" max="2.0" step="0.01" value={activityBias} onChange={(e) => setActivityBias(e)}></Range> */}
-                            <div style={{width:"100%",height:"30vh"}}>
-                            <XYController setX={setActivityBias} setY={setTemperature} xValue={activityBias} yValue={temperature} xSettings={{min:0.0, max:2.0, step:0.01}} ySettings={{min:-2.0, max:2.0, step:0.01}}></XYController>
-                            </div>
-                        </>
-                    }
-                    {/* <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                        <input type="checkbox" checked={isAvancedMode} onChange={(e) => setIsAdvancedMode(e.target.checked)}></input>
-                    </div> */}
-
-                    
+                <div style={{ width: "20vw", margin:32}}>
+                    <div style={{ width: "100%", height: "30vh" }}>
+                        <XYController setX={setActivityBias} setY={setTemperature} xValue={activityBias} yValue={temperature} xSettings={{ min: 0.0, max: 2.0, step: 0.01 }} ySettings={{ min: -2.0, max: 2.0, step: 0.01 }}></XYController>
+                    </div>
+                    <Range label="speed <-> precision" description="set speed/precision" type="range" min="1" max="30" step="1" value={nSteps} onChange={(e) => setNSteps(e)}></Range>
                 </div>
             </div>
+            <div style={{ width: "22%" }}>
+                {midiOutputs.length > 0 &&
+                    <DropDown label="output" options={midiOptions} value={output} onChange={(e) => setOutput(e)}></DropDown>
+                }
+            </div>
+            <>
+                <div style={{ width: "22%", display: output !== "built-in" ? "none" : "" }}>
+                    <DropDown label="waveform" value={synthParameters.oscillator.type} options={waveformOptions} onChange={(value) => {
+                        setSynthParameters({
+                            ...synthParameters, oscillator: { ...synthParameters.oscillator, type: value }
+                        })
+                    }
+                    } />
+                    <Range label="attack" min={0.01} max={1} step={0.01} value={synthParameters.envelope.attack} onChange={(value) => {
+                        setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, attack: value } })
+                    }} />
+                    <Range label="sustain" min={0.01} max={1} step={0.01} value={synthParameters.envelope.sustain} onChange={(value) => {
+                        setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, sustain: value } })
+                    }} />
+                </div>
+                <div style={{ width: "22%", display: output !== "built-in" ? "none" : "" }}>
+                    <Range label="volume" min={-20} max={0} step={0.01} value={synthParameters.volume} onChange={(value) => {
+                        setSynthParameters({ ...synthParameters, volume: value })
+                    }} />
+                    <Range label="decay" min={0.01} max={1} step={0.01} value={synthParameters.envelope.decay} onChange={(value) => {
+                        setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, decay: value } })
+                    }} />
+                    <Range label="release" min={0.01} max={1} step={0.01} value={synthParameters.envelope.release} onChange={(value) => {
+                        setSynthParameters({ ...synthParameters, envelope: { ...synthParameters.envelope, release: value } })
+                    }} />
+                </div>
+            </>
         </div >
 
     )
