@@ -120,11 +120,14 @@ const Toolbar = ({
                         {rollComponent}
                     </div>
                 </div>
-                <div style={{ width: "20vw", margin:32}}>
-                    <div style={{ width: "100%", height: "30vh" }}>
-                        <XYController setX={setActivityBias} setY={setTemperature} xValue={activityBias} yValue={temperature} xSettings={{ min: 0.0, max: 2.0, step: 0.01 }} ySettings={{ min: -2.0, max: 2.0, step: 0.01 }}></XYController>
+                <div style={{ width: "20vw", margin: "auto" }}>
+                    <div style={{ margin: 8 }}>
+                        <div style={{ width: "100%", height: "30vh" }}>
+                            <XYController setX={setActivityBias} setY={setTemperature} xValue={activityBias} yValue={temperature} xSettings={{ min: 0.0, max: 2.0, step: 0.01 }} ySettings={{ min: -2.0, max: 2.0, step: 0.01 }}></XYController>
+                            <Range label="speed <-> precision" description="set speed/precision" type="range" min="1" max="30" step="1" value={nSteps} onChange={(e) => setNSteps(e)}></Range>
+                        </div>
+
                     </div>
-                    <Range label="speed <-> precision" description="set speed/precision" type="range" min="1" max="30" step="1" value={nSteps} onChange={(e) => setNSteps(e)}></Range>
                 </div>
             </div>
             <div style={{ width: "22%" }}>

@@ -51,6 +51,7 @@ const XYController = ({ setY, setX, xValue, yValue, xSettings, ySettings }) => {
         >
             <div
                 style={{
+                    cursor: "pointer",
                     position: "absolute",
                     backgroundColor: "teal",
                     width: dotSize,
