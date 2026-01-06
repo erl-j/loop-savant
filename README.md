@@ -2,6 +2,8 @@
 
 Loop Savant is a loop-based music making tool that runs in your browser.
 
+_It is powered by a masked generative music transformer: [erl-j/masked-generative-music-transformer](https://github.com/erl-j/masked-generative-music-transformer)._
+
 🎛️ **Try it here:** [https://erl-j.github.io/loop-savant/](https://erl-j.github.io/loop-savant/)
 
 <p align="center">
