@@ -1,4 +1,4 @@
-# Loop Savant
+# Loop Savant: A loop-based music making tool that runs in your browser
 
 Loop Savant is a loop-based music making tool that runs in your browser.
 
